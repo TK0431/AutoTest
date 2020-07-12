@@ -201,7 +201,6 @@
       <Name>FrameWork</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\ai_64.ico" />
   </ItemGroup>
