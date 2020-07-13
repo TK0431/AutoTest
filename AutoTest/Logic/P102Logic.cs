@@ -29,6 +29,12 @@ namespace AutoTest.Logic
 
         public void Init(P102ViewModel model)
         {
+            if (!Directory.Exists(Environment.CurrentDirectory + @"\ExcelScript\"))
+            {
+                Directory.CreateDirectory(Environment.CurrentDirectory + @"\ExcelScript");
+                Directory.CreateDirectory(Environment.CurrentDirectory + @"\ExcelScript\DB");
+            }
+
             DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory + @"\ExcelScript\");
             di.GetFiles().ToList().ForEach(x => model.Files.Add(x));
             LogUtility.WriteInfo("EXE测试：初始化完了");
@@ -209,7 +215,7 @@ namespace AutoTest.Logic
                         default:
                             Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]请以TC,DB命名", "OK", delegate () { }));
                             LogUtility.WriteError($"EXE测试：[{shName}]命名不正确", null);
-                            return;
+                            break;
                     }
                     LogUtility.WriteInfo($"EXE测试：[{shName}]获取完了");
                 });
@@ -251,8 +257,22 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         private void CreatePath(P102ViewModel model)
         {
+            if (Directory.Exists(Environment.CurrentDirectory + @"\Result"))
+            {
+                try
+                {
+                    Directory.Move(Environment.CurrentDirectory + @"\Result", Environment.CurrentDirectory + @"\Result" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+                }
+                catch
+                {
+                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Rsult文件夹重命名失败", "OK", delegate () { }));
+                    LogUtility.WarnInfo($"EXE测试：Rsult文件夹重命名失败");
+                    throw new Exception("Stop");
+                }
+            }
+
             // Create Result path
-            model.OutResultPath = Environment.CurrentDirectory + @"\" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            model.OutResultPath = Environment.CurrentDirectory + @"\Result";
             Directory.CreateDirectory(model.OutResultPath);
             LogUtility.WriteInfo($"EXE测试:路径创建[{model.OutResultPath}]");
 
@@ -340,7 +360,7 @@ namespace AutoTest.Logic
             {
                 Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", "OK", delegate () { }));
                 LogUtility.WriteError($"EXE测试：Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", null);
-                return;
+                throw new Exception("Stop");
             }
             _topHwndModel = HwndUtility.GetHwndModel(hwnd);
             if (caseData["Pic"] == "●") GetPicture(model, hwnd, order);
@@ -674,8 +694,8 @@ namespace AutoTest.Logic
             if (model.ContinueOrder != null) return;
 
             _currentDBCasePath = model.OutResultPath + @"\DB\" + caseNo;
-            if (!Directory.Exists(_currentTCCasePath))
-                Directory.CreateDirectory(_currentTCCasePath);
+            if (!Directory.Exists(_currentDBCasePath))
+                Directory.CreateDirectory(_currentDBCasePath);
 
             DBSheetInfo caseData = model.ExcelData.DBList[order.Sheet].CaseDatas[order.Order];
 
@@ -765,27 +785,28 @@ namespace AutoTest.Logic
                 return;
             }
 
-            if (File.Exists(model.ComparePath + @"\比較結果.xls"))
+            if (File.Exists(model.ComparePath + @"\比較結果.xlsx"))
             {
                 try
                 {
-                    File.Delete(model.ComparePath + @"\比較結果.xls");
+                    File.Delete(model.ComparePath + @"\比較結果.xlsx");
                 }
                 catch
                 {
                     Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"删除失败[比較結果.xls]", "OK", delegate () { }));
-                    LogUtility.WarnInfo($"EXE测试：删除失败[比較結果.xls]");
+                    LogUtility.WarnInfo($"EXE测试：删除失败[比較結果.xlsx]");
                     return;
                 }
             }
 
             GetCompareFiles(model);
 
-            using (ExcelUtility excel = new ExcelUtility(model.ComparePath + @"\比較結果.xls"))
+            using (ExcelUtility excel = new ExcelUtility(model.ComparePath + @"\比較結果.xlsx"))
             {
                 ExcelWorksheet sh = excel.AddSheet("比較結果");
                 sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
-                sh.DefaultRowHeight = 18.75;
+                sh.DefaultRowHeight = 13.5;
+                sh.DefaultColWidth = 9.57;
 
                 List<string> cases = new List<string>();
                 cases.AddRange(_oldPicFiles.Keys);
@@ -855,7 +876,8 @@ namespace AutoTest.Logic
         {
             ExcelWorksheet sh = excel.AddSheet("No" + int.Parse(caseNo.Replace("Case", "")));
             sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
-            sh.DefaultRowHeight = 18.75;
+            sh.DefaultRowHeight = 13.5;
+            sh.DefaultColWidth = 9.57;
             sh.Cells[1, 2].Value = SOLD;
             sh.Cells[1, 18].Value = SNEW;
 
@@ -970,7 +992,8 @@ namespace AutoTest.Logic
         {
             ExcelWorksheet sh = excel.AddSheet("DB" + int.Parse(caseNo.Replace("Case", "")));
             sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
-            sh.DefaultRowHeight = 18.75;
+            sh.DefaultRowHeight = 13.5;
+            sh.DefaultColWidth = 9.57;
             sh.Cells.Style.Numberformat.Format = "@";
 
             int row = 1;
@@ -993,7 +1016,8 @@ namespace AutoTest.Logic
                 List<string> fls = new List<string>();
                 fls.AddRange(_oldDbFiles[caseNo]);
                 fls.AddRange(_newDbFiles[caseNo]);
-                fls.Distinct().ToList().Sort();
+                fls = fls.Distinct().ToList();
+                fls.Sort();
 
                 foreach (string file in fls)
                 {
@@ -1059,17 +1083,7 @@ namespace AutoTest.Logic
                 cond.Style.Font.Color.Color = Color.Red;
                 cond.Style.Fill.BackgroundColor.Color = Color.LightPink;
 
-                record.Sresult = "OK";
-                for (int i = row; i < row + (cntOld > cntNew ? cntOld : cntNew); i++)
-                {
-                    for (int j = 1; j <= colCnt; j++)
-                        if (sh.Cells[i, j].Text == "FALSE")
-                        {
-                            record.Sresult = "NG";
-                            break;
-                        }
-                    if (record.Sresult == "NG") break;
-                }
+                record.Sresult = FileUtility.isValidFileContent(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, model.ComparePath + @"\" + SNEW + @"\DB\" + filNew) ? "OK" : "NG";
             }
 
             _results.Add(record);

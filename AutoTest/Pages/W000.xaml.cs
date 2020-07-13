@@ -44,7 +44,7 @@ namespace AutoTest.Pages
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // 用户保存
+            System.Environment.Exit(0);
         }
 
         /// <summary>

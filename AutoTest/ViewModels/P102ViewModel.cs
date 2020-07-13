@@ -63,7 +63,7 @@ namespace AutoTest.ViewModels
 
         public ExcelScriptModel ExcelData { get; set; }
 
-        public string ComparePath { get; set; } = Environment.CurrentDirectory;
+        public string ComparePath { get; set; } = Environment.CurrentDirectory + @"\Result";
 
         public int PicTop { get; set; } = 7;
         public int PicButtom { get; set; } = 7;
