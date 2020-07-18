@@ -1,4 +1,5 @@
 ﻿using AutoTest.Pages;
+using FrameWork.Consts;
 using FrameWork.Models;
 using FrameWork.Utility;
 using MaterialDesignThemes.Wpf;
@@ -44,20 +45,43 @@ namespace AutoTest
             }
         }
 
+        public static void ShowMessage(string message, string OK = "OK", EnumMessageType type = EnumMessageType.Info, Exception ex = null)
+        {
+            Task.Factory.StartNew(() => MessageQueue.Enqueue(message, OK, delegate (object x) { }, null, false, true, TimeSpan.FromMilliseconds(10000)));
+
+            switch (type)
+            {
+                case EnumMessageType.Info:
+                    LogUtility.WriteInfo(message);
+                    break;
+                case EnumMessageType.Warn:
+                    LogUtility.WarnInfo(message);
+                    break;
+                case EnumMessageType.Error:
+                    LogUtility.WriteError(message, ex);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static void ShowOKMessage()
+        {
+            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"读取完毕", "OK", delegate (object x) { }, null, false, true, TimeSpan.FromMilliseconds(10000)));
+        }
+
         public static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        { 
-            if(e.Exception.Message == "【停止】")
-            { 
-                Task.Factory.StartNew(() => MessageQueue.Enqueue($"已手动停止", "OK", delegate () { }));
-                LogUtility.WriteInfo($"EXE测试：手动停止");
+        {
+            if (e.Exception.Message == "【停止】")
+            {
+                ShowMessage($"已手动停止", "OK");
             }
             else if (e.Exception.Message == "Stop")
             {
             }
             else
-            { 
-                Task.Factory.StartNew(() => MessageQueue.Enqueue($"程序异常,找俞解决", "OK", delegate () { }));
-                LogUtility.WriteError($"系统异常发生",e.Exception);
+            {
+                ShowMessage($"程序异常,嘻嘻", "OK", EnumMessageType.Error, e.Exception);
             }
 
             e.Handled = true;

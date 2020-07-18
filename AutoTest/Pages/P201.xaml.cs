@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoTest.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,13 @@ namespace AutoTest.Pages
     /// </summary>
     public partial class P201 : Page
     {
+        private P201ViewModel _model;
         public P201()
         {
             InitializeComponent();
+
+            _model = new P201ViewModel();
+            this.DataContext = _model;
         }
     }
 }

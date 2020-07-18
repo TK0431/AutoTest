@@ -1,4 +1,5 @@
 ﻿using AutoTest.ViewModels;
+using FrameWork.Consts;
 using FrameWork.Models;
 using FrameWork.Utility;
 using OfficeOpenXml;
@@ -33,11 +34,13 @@ namespace AutoTest.Logic
             {
                 Directory.CreateDirectory(Environment.CurrentDirectory + @"\ExcelScript");
                 Directory.CreateDirectory(Environment.CurrentDirectory + @"\ExcelScript\DB");
+                LogUtility.WriteInfo($"Create directory [{Environment.CurrentDirectory + @"\ExcelScript\"}]");
             }
 
             DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory + @"\ExcelScript\");
             di.GetFiles().ToList().ForEach(x => model.Files.Add(x));
-            LogUtility.WriteInfo("EXE测试：初始化完了");
+
+            LogUtility.WriteInfo($"初始化完了");
         }
 
         /// <summary>
@@ -49,11 +52,11 @@ namespace AutoTest.Logic
             model.ExcelData = new ExcelScriptModel();
             model.FlgStart = false;
             model.FlgContinue = false;
+            model.ContinueOrder = null;
 
             if (model.SelectedFile == null)
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"请选择文件", "OK", delegate () { }));
-                LogUtility.WarnInfo("EXE测试：文件未选择");
+                App.ShowMessage("文件未选择", "Check");
                 return;
             }
 
@@ -62,8 +65,7 @@ namespace AutoTest.Logic
                 ExcelWorksheet sh = excel.GetSheet("実行シナリオ");
                 if (sh == null)
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[実行シナリオ]不存在", "OK", delegate () { }));
-                    LogUtility.WriteError($"[実行シナリオ]Sheet不存在", null);
+                    App.ShowMessage("[実行シナリオ]不存在", "Error", EnumMessageType.Error);
                     return;
                 }
 
@@ -103,8 +105,7 @@ namespace AutoTest.Logic
                     ExcelWorksheet sh1 = excel.GetSheet(shName);
                     if (sh1 == null)
                     {
-                        Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]不存在", "OK", delegate () { }));
-                        LogUtility.WriteError($"EXE测试：[{shName}]Sheet不存在", null);
+                        App.ShowMessage("Sheet[{shName}]不存在", "Error", EnumMessageType.Error);
                         return;
                     }
 
@@ -132,8 +133,7 @@ namespace AutoTest.Logic
                                 }
                                 catch (Exception)
                                 {
-                                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]{i}行异常", "OK", delegate () { }));
-                                    LogUtility.WriteError($"EXE测试：[{shName}]{i}行异常", null);
+                                    App.ShowMessage($"[{shName}]{i}行异常", "Check", EnumMessageType.Error);
                                     return;
                                 }
                             }
@@ -149,8 +149,7 @@ namespace AutoTest.Logic
                                     int sno;
                                     if (sh1.Cells[2, i].Text != "Wait" && !int.TryParse(sh1.Cells[2, i].Text, out sno))
                                     {
-                                        Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]{i}列Sleep异常", "OK", delegate () { }));
-                                        LogUtility.WriteError($"EXE测试：[{shName}]{i}列Sleep异常", null);
+                                        App.ShowMessage($"[{shName}]{i}列Sleep异常", "Check", EnumMessageType.Error);
                                         return;
                                     }
 
@@ -169,8 +168,7 @@ namespace AutoTest.Logic
                                 }
                                 catch (Exception)
                                 {
-                                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]{i}列异常", "OK", delegate () { }));
-                                    LogUtility.WriteError($"EXE测试：[{shName}]{i}列异常", null);
+                                    App.ShowMessage($"[{shName}]{i}列异常", "Check", EnumMessageType.Error);
                                     return;
                                 }
                             }
@@ -204,8 +202,7 @@ namespace AutoTest.Logic
                                 }
                                 catch (Exception)
                                 {
-                                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]{i}行异常", "OK", delegate () { }));
-                                    LogUtility.WriteError($"EXE测试：[{shName}]{i}行异常", null);
+                                    App.ShowMessage($"[{shName}]{i}行异常", "Check", EnumMessageType.Error);
                                     return;
                                 }
                             }
@@ -213,8 +210,7 @@ namespace AutoTest.Logic
                             model.ExcelData.DBList.Add(shName, db);
                             break;
                         default:
-                            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{shName}]请以TC,DB命名", "OK", delegate () { }));
-                            LogUtility.WriteError($"EXE测试：[{shName}]命名不正确", null);
+                            //App.ShowMessage($"[{shName}]请以TC,DB命名", "Check");
                             break;
                     }
                     LogUtility.WriteInfo($"EXE测试：[{shName}]获取完了");
@@ -222,8 +218,7 @@ namespace AutoTest.Logic
             }
 
             model.FlgStart = true;
-            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"读取完毕", null, null, null, false, true, TimeSpan.FromMilliseconds(500)));
-            LogUtility.WriteInfo($"EXE测试：获取完了");
+            App.ShowMessage($"读取完毕");
         }
 
         #region 自动测试
@@ -234,21 +229,20 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         public void Start(P102ViewModel model)
         {
-            model.PicNum = 1;
+            model.FlgNewDir = false;
+
             // 创建路径
             CreatePath(model);
             StartTest(model);
 
-            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"测试完了", "OK", delegate () { }));
-            LogUtility.WriteInfo($"EXE测试：测试完了");
+            App.ShowMessage($"测试完了");
         }
 
         public void Continue(P102ViewModel model)
         {
             StartTest(model);
 
-            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"测试完了", "OK", delegate () { }));
-            LogUtility.WriteInfo($"EXE测试：测试完了");
+            App.ShowMessage($"测试完了");
         }
 
         /// <summary>
@@ -257,32 +251,35 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         private void CreatePath(P102ViewModel model)
         {
-            if (Directory.Exists(Environment.CurrentDirectory + @"\Result"))
+            model.OutResultPath = Environment.CurrentDirectory + @"\Result";
+
+            if (model.FlgNewDir && Directory.Exists(model.OutResultPath))
             {
                 try
                 {
-                    Directory.Move(Environment.CurrentDirectory + @"\Result", Environment.CurrentDirectory + @"\Result" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+                    Directory.Move(model.OutResultPath, model.OutResultPath + DateTime.Now.ToString("yyyyMMddHHmmss"));
                 }
                 catch
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Rsult文件夹重命名失败", "OK", delegate () { }));
-                    LogUtility.WarnInfo($"EXE测试：Rsult文件夹重命名失败");
+                    App.ShowMessage($"Result文件夹重命名失败", "Error");
                     throw new Exception("Stop");
                 }
             }
 
-            // Create Result path
-            model.OutResultPath = Environment.CurrentDirectory + @"\Result";
-            Directory.CreateDirectory(model.OutResultPath);
-            LogUtility.WriteInfo($"EXE测试:路径创建[{model.OutResultPath}]");
+            if (!Directory.Exists(model.OutResultPath))
+            {
+                // Create Result path
+                Directory.CreateDirectory(model.OutResultPath);
+                LogUtility.WriteInfo($"EXE测试:路径创建[{model.OutResultPath}]");
+            }
 
             if (model.FlgCodeOld)
             {
-                model.OutResultPath = model.OutResultPath + @"\" + SNEW;
+                model.OutResultPath = model.OutResultPath + @"\" + SOLD;
             }
             else
             {
-                model.OutResultPath = model.OutResultPath + @"\" + SOLD;
+                model.OutResultPath = model.OutResultPath + @"\" + SNEW;
             }
             Directory.CreateDirectory(model.OutResultPath);
             LogUtility.WriteInfo($"EXE测试:路径创建[{model.OutResultPath}]");
@@ -290,11 +287,13 @@ namespace AutoTest.Logic
 
         private void StartTest(P102ViewModel model)
         {
+            string oldCaseNo = null;
             foreach (string key in model.ExcelData.OrderList.Keys)
             {
                 // 获取Case00X
                 int no;
                 string caseNo;
+
                 if (int.TryParse(key, out no))
                 {
                     caseNo = "Case" + key.PadLeft(3, '0');
@@ -303,6 +302,9 @@ namespace AutoTest.Logic
                 {
                     caseNo = key;
                 }
+
+                if (model.ContinueOrder == null && oldCaseNo != caseNo)
+                    model.PicNum = 1;
 
                 // 循环Order
                 foreach (OrderItem order in model.ExcelData.OrderList[key])
@@ -336,6 +338,7 @@ namespace AutoTest.Logic
             else if (caseData["Sleep"] == "Wait")
             {
                 model.ContinueOrder = order;
+                model.FlgStart = false;
                 model.FlgContinue = true;
                 throw new Exception("【停止】");
             }
@@ -358,8 +361,10 @@ namespace AutoTest.Logic
                 );
             if (hwnd == IntPtr.Zero)
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", "OK", delegate () { }));
-                LogUtility.WriteError($"EXE测试：Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", null);
+                App.ShowMessage($"Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", "Error", EnumMessageType.Error);
+                model.ContinueOrder = order;
+                model.FlgStart = false;
+                model.FlgContinue = true;
                 throw new Exception("Stop");
             }
             _topHwndModel = HwndUtility.GetHwndModel(hwnd);
@@ -406,10 +411,14 @@ namespace AutoTest.Logic
                 {
                     DoTab(model, key, caseData[key].Split(':')[1]);
                 }
-                else if (caseData[key].StartsWith("Keys:"))
+                else if (caseData[key].StartsWith("Key:"))
                 {
                     DoInputKeys(model, caseCtrl, key, caseData[key].Split(':')[1]);
                 }
+                //else if (caseData[key].StartsWith("Move"))
+                //{
+                //    DoMove(model, caseCtrl[key]);
+                //}
                 else
                 {
                     DoInput(model, caseCtrl, key, caseData[key]);
@@ -443,17 +452,25 @@ namespace AutoTest.Logic
             Thread.Sleep(100);
 
             // Pic
-            //IDataObject newObject = null;
+            IDataObject newObject = null;
             Bitmap newBitmap = null;
-            //newObject = Clipboard.GetDataObject();
+            newObject = Clipboard.GetDataObject();
             if (Clipboard.ContainsImage())
             {
                 newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
                 newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
-                model.PicNum = model.PicNum + 1;
+                LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
             }
-            LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
+            else
+            {
+                LogUtility.WriteError($"EXE测试：截图失败[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}", null);
+            }
         }
+
+        //private void DoMove(P102ViewModel model, ControlInfo ci)
+        //{
+        //    User32Utility.mouse_event(User32Utility.MOUSEEVENTF_MOVE, ci.X, ci.Y, 0, 0);
+        //}
 
         /// <summary>
         /// 左击
@@ -469,10 +486,9 @@ namespace AutoTest.Logic
                 if (!string.IsNullOrWhiteSpace(value))
                     nums = int.Parse(value.Split(':')[1]);
             }
-            catch (Exception ex)
+            catch
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Click连击不明[{id}]", "OK", delegate () { }));
-                LogUtility.WriteError($"EXE测试：Click连击不明[{id}]", ex);
+                App.ShowMessage($"Click连击不明[{id}]", "Error", EnumMessageType.Error);
                 throw new Exception("Stop");
             }
 
@@ -537,8 +553,15 @@ namespace AutoTest.Logic
                 User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                 Thread.Sleep(100);
 
-                SendKeys.SendWait(value);
+                foreach (char c in value)
+                {
+                    SendKeys.SendWait(c.ToString());
+                    Thread.Sleep(model.KeySleep);
+                }
+
             }
+
+            LogUtility.WriteInfo($"EXE测试：[{id}]DoInput[{value}]");
         }
 
         /// <summary>
@@ -571,7 +594,13 @@ namespace AutoTest.Logic
                 User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                 Thread.Sleep(100);
             }
-            SendKeys.SendWait(value);
+            foreach (char c in value)
+            {
+                SendKeys.SendWait(c.ToString());
+                Thread.Sleep(model.KeySleep);
+            }
+
+            LogUtility.WriteInfo($"EXE测试：[{id}]DoInputKeys[{value}]");
         }
 
         /// <summary>
@@ -588,8 +617,7 @@ namespace AutoTest.Logic
             {
                 if (!_currHwnds.ContainsKey(id))
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"控件[{id}]不存在", "OK", delegate () { }));
-                    LogUtility.WriteError($"EXE测试：控件[{id}]不存在", null);
+                    App.ShowMessage($"控件[{id}-{value}]不存在", "Error", EnumMessageType.Error);
                     throw new Exception("Stop");
                 }
 
@@ -600,10 +628,11 @@ namespace AutoTest.Logic
             }
             else
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"Tab的Index不明[{id}-{value}]", "OK", delegate () { }));
-                LogUtility.WriteError($"EXE测试：Tab的Index不明[{id}-{value}]", null);
+                App.ShowMessage($"Tab的Index不明[{id}-{value}]", "Error", EnumMessageType.Error);
                 throw new Exception("Stop");
             }
+
+            LogUtility.WriteInfo($"EXE测试：[{id}]DoTab[{value}]");
         }
 
         /// <summary>
@@ -617,8 +646,7 @@ namespace AutoTest.Logic
         {
             if (!_currHwnds.ContainsKey(id))
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"ComBobox控件[{id}]不存在", "OK", delegate () { }));
-                LogUtility.WriteError($"EXE测试：ComBobox控件[{id}]不存在", null);
+                App.ShowMessage($"ComBobox控件[{id}-{value}]不存在", "Error", EnumMessageType.Error);
                 throw new Exception("Stop");
             }
 
@@ -632,8 +660,7 @@ namespace AutoTest.Logic
                 }
                 else
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{id}]Index不明[{arr[1]}]", "OK", delegate () { }));
-                    LogUtility.WriteError($"EXE测试：[{id}]Index不明[{arr[1]}]", null);
+                    App.ShowMessage($"ComBobox[{id}]Index不明[{arr[1]}]", "Error", EnumMessageType.Error);
                     throw new Exception("Stop");
                 }
             }
@@ -644,8 +671,7 @@ namespace AutoTest.Logic
                     string idCbx = arr[1];
                     if (!_currHwnds.ContainsKey(idCbx))
                     {
-                        Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"ComBobox对应控件[{idCbx}]不存在", "OK", delegate () { }));
-                        LogUtility.WriteError($"EXE测试：ComBobox对应控件[{idCbx}]不存在", null);
+                        App.ShowMessage($"ComBobox对应控件[{id}-{value}]不存在", "Error", EnumMessageType.Error);
                         throw new Exception("Stop");
                     }
 
@@ -674,11 +700,12 @@ namespace AutoTest.Logic
                 }
                 else
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"[{id}]Index不明[{arr[2]}]", "OK", delegate () { }));
-                    LogUtility.WriteError($"EXE测试：[{id}]Index不明[{arr[2]}]", null);
+                    App.ShowMessage($"ComBobox[{id}]Index不明[{arr[2]}]", "Error", EnumMessageType.Error);
                     throw new Exception("Stop");
                 }
             }
+
+            LogUtility.WriteInfo($"EXE测试：[{id}]DoComBoBox[{value}]");
         }
 
         private string _currentDBCasePath;
@@ -763,7 +790,7 @@ namespace AutoTest.Logic
                     db.ExecuteNonQuery(caseData.Sql);
                 }
             }
-
+            LogUtility.WriteInfo($"EXE测试：Case[{caseNo}-{order.Order}]完了");
         }
 
         #endregion
@@ -774,14 +801,15 @@ namespace AutoTest.Logic
         Dictionary<string, List<string>> _newPicFiles;
         Dictionary<string, List<string>> _oldDbFiles;
         Dictionary<string, List<string>> _newDbFiles;
+        Dictionary<string, List<string>> _oldFiles;
+        Dictionary<string, List<string>> _newFiles;
         List<ResultRecord> _results;
 
         public void Compare(P102ViewModel model)
         {
             if (!Directory.Exists(model.ComparePath))
             {
-                Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"比较路径不存在", "OK", delegate () { }));
-                LogUtility.WarnInfo($"EXE测试：比较路径不存在{model.ComparePath}");
+                App.ShowMessage($"比较路径不存在", "Error", EnumMessageType.Error);
                 return;
             }
 
@@ -793,8 +821,7 @@ namespace AutoTest.Logic
                 }
                 catch
                 {
-                    Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"删除失败[比較結果.xls]", "OK", delegate () { }));
-                    LogUtility.WarnInfo($"EXE测试：删除失败[比較結果.xlsx]");
+                    App.ShowMessage($"删除失败[比較結果.xls]", "Error", EnumMessageType.Error);
                     return;
                 }
             }
@@ -813,6 +840,8 @@ namespace AutoTest.Logic
                 cases.AddRange(_newPicFiles.Keys);
                 cases.AddRange(_oldDbFiles.Keys);
                 cases.AddRange(_newDbFiles.Keys);
+                cases.AddRange(_oldFiles.Keys);
+                cases.AddRange(_newFiles.Keys);
                 cases = cases.Distinct().ToList();
                 cases.Sort();
 
@@ -823,6 +852,8 @@ namespace AutoTest.Logic
                         CompareTC(model, excel, caseNo);
                     if (_oldDbFiles.ContainsKey(caseNo) || _newDbFiles.ContainsKey(caseNo))
                         CompareDB(model, excel, caseNo);
+                    if (_oldFiles.ContainsKey(caseNo) || _newFiles.ContainsKey(caseNo))
+                        CompareFL(model, excel, caseNo);
                 }
 
                 SetResultSheet(model, sh);
@@ -830,8 +861,7 @@ namespace AutoTest.Logic
                 excel.Save();
             }
 
-            Task.Factory.StartNew(() => App.MessageQueue.Enqueue($"比较完了", "OK", delegate () { }));
-            LogUtility.WriteInfo($"EXE测试：比较完了");
+            App.ShowMessage($"比较完了");
         }
 
         private void GetCompareFiles(P102ViewModel model)
@@ -840,6 +870,8 @@ namespace AutoTest.Logic
             _newPicFiles = new Dictionary<string, List<string>>();
             _oldDbFiles = new Dictionary<string, List<string>>();
             _newDbFiles = new Dictionary<string, List<string>>();
+            _oldFiles = new Dictionary<string, List<string>>();
+            _newFiles = new Dictionary<string, List<string>>();
 
             string currentPath = model.ComparePath + @"\" + SOLD + @"\Picture";
             if (Directory.Exists(currentPath))
@@ -847,12 +879,18 @@ namespace AutoTest.Logic
             currentPath = model.ComparePath + @"\" + SOLD + @"\DB";
             if (Directory.Exists(currentPath))
                 AddFiles(model, currentPath, _oldDbFiles);
+            currentPath = model.ComparePath + @"\" + SOLD + @"\File";
+            if (Directory.Exists(currentPath))
+                AddFiles(model, currentPath, _oldFiles);
             currentPath = model.ComparePath + @"\" + SNEW + @"\Picture";
             if (Directory.Exists(currentPath))
                 AddFiles(model, currentPath, _newPicFiles);
             currentPath = model.ComparePath + @"\" + SNEW + @"\DB";
             if (Directory.Exists(currentPath))
                 AddFiles(model, currentPath, _newDbFiles);
+            currentPath = model.ComparePath + @"\" + SNEW + @"\File";
+            if (Directory.Exists(currentPath))
+                AddFiles(model, currentPath, _newFiles);
         }
 
         private void AddFiles(P102ViewModel model, string path, Dictionary<string, List<string>> list)
@@ -865,6 +903,7 @@ namespace AutoTest.Logic
                     List<string> files = new List<string>();
                     foreach (FileInfo file in caseDir.GetFiles())
                     {
+                        if (file.Extension == ".db") continue;
                         files.Add(caseDir.Name + @"\" + file.Name);
                     }
                     list.Add(caseDir.Name, files);
@@ -876,10 +915,12 @@ namespace AutoTest.Logic
         {
             ExcelWorksheet sh = excel.AddSheet("No" + int.Parse(caseNo.Replace("Case", "")));
             sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
+            sh.DefaultColWidth = 20;
             sh.DefaultRowHeight = 13.5;
-            sh.DefaultColWidth = 9.57;
             sh.Cells[1, 2].Value = SOLD;
             sh.Cells[1, 18].Value = SNEW;
+
+            Enumerable.Range(1, 18).ToList().ForEach(c => sh.Column(c).Width = 10.3);
 
             int row = 1;
             if (!_oldPicFiles.ContainsKey(caseNo))
@@ -907,7 +948,7 @@ namespace AutoTest.Logic
                 {
                     if (_oldPicFiles[caseNo].Contains(f) && _newPicFiles[caseNo].Contains(f))
                         row = AddPic(model, sh, f, f, row);
-                    else if (_oldPicFiles.ContainsKey(f))
+                    else if (_oldPicFiles[caseNo].Contains(f))
                         row = AddPic(model, sh, f, "", row);
                     else
                         row = AddPic(model, sh, "", f, row);
@@ -985,6 +1026,8 @@ namespace AutoTest.Logic
             } while (rowHeight * cnt++ < picHeight);
             row += cnt;
 
+            LogUtility.WriteInfo($"EXE测试：PicCompare:[{picOld}-{picNew}]完了");
+
             return row;
         }
 
@@ -1023,10 +1066,53 @@ namespace AutoTest.Logic
                 {
                     if (_oldDbFiles[caseNo].Contains(file) && _newDbFiles[caseNo].Contains(file))
                         row = AddFile(model, sh, file, file, row);
-                    else if (_oldDbFiles.ContainsKey(file))
-                        row = AddFile(model, sh, file, file, row);
+                    else if (_oldDbFiles[caseNo].Contains(file))
+                        row = AddFile(model, sh, file, "", row);
                     else
+                        row = AddFile(model, sh, "", file, row);
+                }
+            }
+        }
+
+        private void CompareFL(P102ViewModel model, ExcelUtility excel, string caseNo)
+        {
+            ExcelWorksheet sh = excel.AddSheet("FL" + int.Parse(caseNo.Replace("Case", "")));
+            sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
+            sh.DefaultRowHeight = 13.5;
+            sh.DefaultColWidth = 9.57;
+            sh.Cells.Style.Numberformat.Format = "@";
+
+            int row = 1;
+            if (!_oldFiles.ContainsKey(caseNo))
+            {
+                foreach (string file in _oldFiles[caseNo])
+                {
+                    row = AddFile(model, sh, "", file, row);
+                }
+            }
+            else if (!_newFiles.ContainsKey(caseNo))
+            {
+                foreach (string file in _newFiles[caseNo])
+                {
+                    row = AddFile(model, sh, file, "", row);
+                }
+            }
+            else
+            {
+                List<string> fls = new List<string>();
+                fls.AddRange(_oldFiles[caseNo]);
+                fls.AddRange(_newFiles[caseNo]);
+                fls = fls.Distinct().ToList();
+                fls.Sort();
+
+                foreach (string file in fls)
+                {
+                    if (_oldFiles[caseNo].Contains(file) && _newFiles[caseNo].Contains(file))
                         row = AddFile(model, sh, file, file, row);
+                    else if (_oldFiles[caseNo].Contains(file))
+                        row = AddFile(model, sh, file, "", row);
+                    else
+                        row = AddFile(model, sh, "", file, row);
                 }
             }
         }
@@ -1039,7 +1125,8 @@ namespace AutoTest.Logic
             {
                 sh.Cells[row, 1].Value = filNew;
                 sh.Row(row++).SetColor(Color.Yellow);
-                sh.LoadData(model.ComparePath + @"\" + SNEW + @"\DB\" + filNew, row, 1);
+                sh.Cells[row++, 1].Value = SOLD + " ファイル存在なし";
+                sh.LoadData(model.ComparePath + @"\" + SNEW + @"\DB\" + filNew, row++, 1);
 
                 record.Sresult = "NG";
             }
@@ -1047,7 +1134,8 @@ namespace AutoTest.Logic
             {
                 sh.Cells[row, 1].Value = filOld;
                 sh.Row(row++).SetColor(Color.Yellow);
-                sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row, 1);
+                sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row++, 1);
+                sh.Cells[row, 1].Value = SNEW + "  ファイル存在なし";
 
                 record.Sresult = "NG";
             }
@@ -1059,34 +1147,44 @@ namespace AutoTest.Logic
                 // 旧数据
                 int strOld = row;
                 int cntOld = sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row++, 1);
+                if (cntOld == 0) sh.Cells[row - 1, 1].Value = SOLD + " 空ファイル";
                 row = sh.GetMaxRow() + 1;
                 // 新数据
                 int strNew = row;
                 int cntNew = sh.LoadData(model.ComparePath + @"\" + SNEW + @"\DB\" + filNew, row++, 1);
+                if (cntNew == 0) sh.Cells[row - 1, 1].Value = SNEW + " 空ファイル";
                 row = sh.GetMaxRow() + 1;
 
                 int colCnt = sh.GetMaxColumn(strOld);
 
-                // 比较结果
-                // Head
-                sh.Cells[strOld, 1, strOld, colCnt].Copy(sh.Cells[row, 1, row, colCnt]);
-                row++;
+                int cnt = cntOld > cntNew ? cntOld : cntNew;
+                if (cnt == 1) cnt = 2;
 
-                sh.Cells[row, 1].Formula = $"=IF(A{strOld + 1}=A{strNew + 1},TRUE,FALSE)";
-                for (int i = 2; i <= colCnt; i++)
-                    sh.Cells[row, 1].Copy(sh.Cells[row, i]);
-                for (int i = row + 1; i < row + (cntOld > cntNew ? cntOld : cntNew) - 1; i++)
-                    sh.Cells[row, 1, row, colCnt].Copy(sh.Cells[i, 1, i, colCnt]);
+                if (colCnt > 0 && cnt > 0)
+                {
+                    // 比较结果
+                    // Head
+                    sh.Cells[strOld, 1, strOld, colCnt].Copy(sh.Cells[row, 1, row, colCnt]);
+                    row++;
 
-                var cond = sh.ConditionalFormatting.AddEqual(new ExcelAddress(sh.Cells[row, 1, row + cntOld - 2, colCnt].Address));
-                cond.Formula = "FALSE";
-                cond.Style.Font.Color.Color = Color.Red;
-                cond.Style.Fill.BackgroundColor.Color = Color.LightPink;
+                    sh.Cells[row, 1].Formula = $"=IF(A{strOld + 1}=A{strNew + 1},TRUE,FALSE)";
+                    for (int i = 2; i <= colCnt; i++)
+                        sh.Cells[row, 1].Copy(sh.Cells[row, i]);
+                    for (int i = row + 1; i < row + cnt - 1; i++)
+                        sh.Cells[row, 1, row, colCnt].Copy(sh.Cells[i, 1, i, colCnt]);
 
+                    var cond = sh.ConditionalFormatting.AddEqual(new ExcelAddress(sh.Cells[row, 1, row + cnt - 2, colCnt].Address));
+                    cond.Formula = "FALSE";
+                    cond.Style.Font.Color.Color = Color.Red;
+                    cond.Style.Fill.BackgroundColor.Color = Color.LightPink;
+                }
                 record.Sresult = FileUtility.isValidFileContent(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, model.ComparePath + @"\" + SNEW + @"\DB\" + filNew) ? "OK" : "NG";
             }
 
             _results.Add(record);
+
+            LogUtility.WriteInfo($"EXE测试：DBCompare:[{filOld}-{filNew}]完了");
+
             return sh.GetMaxRow() + 2;
         }
 
@@ -1123,10 +1221,11 @@ namespace AutoTest.Logic
                     sh.Cells[row++, 6].Hyperlink = new Uri(item.Link, UriKind.Relative);
                 }
 
-                var cond = sh.ConditionalFormatting.AddEqual(new ExcelAddress(sh.Cells[6, 6, 5 + _results.Count, 6].Address));
-                cond.Formula = "\"NG\"";
-                cond.Style.Font.Color.Color = Color.Red;
-                cond.Style.Fill.BackgroundColor.Color = Color.LightPink;
+                var cond = sh.ConditionalFormatting.AddExpression(new ExcelAddress(sh.Cells[6, 2, 5 + _results.Count, 7].Address));
+                //cond.Formula = "\"NG\"";
+                cond.Formula = "=$F6=\"NG\"";
+                //cond.Style.Font.Color.Color = Color.Red;
+                cond.Style.Fill.BackgroundColor.Color = Color.FromArgb(255, 255, 204);
 
                 sh.Cells[6, 2, 5 + _results.Count, 7].Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
             }

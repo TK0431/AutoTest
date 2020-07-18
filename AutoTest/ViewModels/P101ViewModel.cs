@@ -85,6 +85,8 @@ namespace AutoTest.ViewModels
         /// </summary>
         public ICommand BtnFileOut { get; set; }
 
+        public string TopHwnd { get; set; }
+
         /// <summary>
         /// 初始化
         /// </summary>
@@ -160,7 +162,7 @@ namespace AutoTest.ViewModels
         {
             get
             {
-                return "0x" + HModel.HwndId.ToString().PadLeft(8, '0') + "(" + HModel.HwndId.ToString("D10") + ")";
+                return "0x" + HModel.HwndId.ToString("x8").PadLeft(8, '0') + "(" + HModel.HwndId.ToString("D10") + ")";
             }
         }
 

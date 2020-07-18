@@ -30,6 +30,8 @@ namespace AutoTest.ViewModels
         /// </summary>
         public ICommand BtnReadFile { get; set; }
 
+        public bool FlgNewDir { get; set; } = true;
+
         /// <summary>
         /// 
         /// </summary>
@@ -51,6 +53,8 @@ namespace AutoTest.ViewModels
         public OrderItem ContinueOrder { get; set; }
 
         public string OutResultPath { get; set; }
+
+        public int KeySleep { get; set; } = 100;
 
         /// <summary>
         /// 

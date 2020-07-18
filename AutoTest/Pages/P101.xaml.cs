@@ -3,6 +3,8 @@ using FrameWork.Consts;
 using FrameWork.Models;
 using FrameWork.Utility;
 using System;
+using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -50,6 +52,8 @@ namespace AutoTest.Pages
             _model.Width = selected.HModel.Width;
             _model.Height = selected.HModel.Height;
             _model.SelectedHwndItem = selected;
+
+            _model.TopHwnd = HwndUtility.GetTopParentHwnd(_model.SelectedHwndItem.HModel.HwndId).ToString();
         }
 
         HwndModel _fmodel = null;
@@ -63,6 +67,7 @@ namespace AutoTest.Pages
             }
 
             IntPtr hwnd = HwndUtility.GetTopParentHwnd(_model.SelectedHwndItem.HModel.HwndId);
+            _model.TopHwnd = HwndUtility.GetTopParentHwnd(_model.SelectedHwndItem.HModel.HwndId).ToString();
             _fmodel = HwndUtility.GetHwndModel(hwnd);
 
             _model.Hwnd = "";
@@ -112,6 +117,22 @@ namespace AutoTest.Pages
 
             btnAdd.IsEnabled = false;
             _fmodel = null;
+        }
+
+        private void Find_Click(object sender, RoutedEventArgs e)
+        {
+            User32Utility.SetForegroundWindow(_model.SelectedHwndItem.HModel.HwndId);
+            Thread.Sleep(100);
+
+            W001 range = new W001();
+
+            //range.StartPosition = FormStartPosition.Manual;
+            range.Left = _model.SelectedHwndItem.HModel.DeskX;
+            range.Top = _model.SelectedHwndItem.HModel.DeskY;
+            range.Show();
+            range.Width = _model.SelectedHwndItem.HModel.Width;
+            range.Height = _model.SelectedHwndItem.HModel.Height;
+            range.Topmost = true;
         }
     }
 }

@@ -3,12 +3,35 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:pass="clr-namespace:FrameWork.Utility;assembly=FrameWork"
       xmlns:local="clr-namespace:AutoTest.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="P201">
+      mc:Ignorable="d"
+      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.FontWeight="Regular"
+      TextElement.FontSize="13"
+      TextOptions.TextFormattingMode="Ideal"
+      TextOptions.TextRenderingMode="Auto"
+      Background="{DynamicResource MaterialDesignPaper}"
+      d:DesignHeight="430" d:DesignWidth="600">
 
-    <Grid>
-        
-    </Grid>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Button Content="读取" Command="{Binding BtnReadFile}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Right" Margin="8"/>
+            <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                      materialDesign:TextFieldAssist.SuffixText="选择"
+                      materialDesign:ColorZoneAssist.Mode="Inverted"
+                      materialDesign:HintAssist.Hint="脚本文件"
+                      DisplayMemberPath="Name" Margin="8"/>
+        </DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期" Style="{StaticResource MaterialDesignOutlinedDatePicker}" Margin="8" />
+            <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
+        </Grid>
+        <Grid/>
+    </DockPanel>
 </Page>

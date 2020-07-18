@@ -84,6 +84,7 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBox Text="{Binding Hwnd}" Grid.Row="0" Grid.ColumnSpan="2" materialDesign:HintAssist.Hint="句柄" Style="{StaticResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Center" IsReadOnly="True" />
                     <TextBox Text="{Binding Value}" Grid.Row="1" Grid.ColumnSpan="2" materialDesign:HintAssist.Hint="值" Style="{StaticResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Center"/>
@@ -94,8 +95,17 @@
                     <TextBox Text="{Binding Height}"  Grid.Row="4" Grid.Column="1" materialDesign:HintAssist.Hint="高度" Style="{StaticResource MaterialDesignFloatingHintTextBox}" VerticalAlignment="Center" IsReadOnly="True"/>
                     <Button  Grid.Row="5" Grid.Column="0" Content="保存" Margin="4" Command="{Binding BtnSaveText}"/>
                     <TextBlock x:Name="tbkAdd" Text="追加控件：0件" Grid.Row="5" Grid.Column="1" Margin="4" VerticalAlignment="Center"/>
-                    <Button Grid.Row="6" Grid.Column="0" Content="定位" Margin="4" Click="Point_Click"/>
-                    <Button x:Name="btnAdd" IsEnabled="False" Grid.Row="6" Grid.Column="1" Content="追加控件" Margin="4" Click="Add_Click"/>
+                    <Grid Grid.Row="6" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="检索" Margin="4" Click="Find_Click"/>
+                        <Button Grid.Column="1" Content="定位" Margin="4" Click="Point_Click"/>
+                        <Button x:Name="btnAdd" IsEnabled="False" Grid.Column="2" Content="追加" Margin="4" Click="Add_Click"/>
+                    </Grid>
+                    <TextBlock Grid.Row="7" Text="{Binding TopHwnd}"/>
                 </Grid>
                 <Button Command="{Binding BtnFileOut}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Bottom" Content="窗口信息导出"/>
                 <Grid/>

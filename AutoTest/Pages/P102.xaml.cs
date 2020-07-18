@@ -80,6 +80,7 @@ namespace AutoTest.Pages
                     newBitmap = (Bitmap)(System.Windows.Forms.Clipboard.GetImage().Clone());
                     newBitmap.Save(picFullPath);
                 }
+                newBitmap.Dispose();
 
                 // No + 1
                 _model.PicNum = _model.PicNum + 1;

@@ -24,6 +24,7 @@
                       DisplayMemberPath="Name" Margin="8"/>
         </DockPanel>
         <DockPanel DockPanel.Dock="Top">
+            <CheckBox IsChecked="{Binding FlgNewDir}" Content="新文件夹"/>
             <Grid DockPanel.Dock="Left" Margin="8 0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -37,6 +38,11 @@
                  materialDesign:HintAssist.IsFloating="True"
                  materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                  materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
+            <TextBox Margin="8" Text="{Binding KeySleep}" DockPanel.Dock="Right"
+                 materialDesign:HintAssist.Hint="Key间隔" Width="70"
+                 materialDesign:HintAssist.IsFloating="True"
+                 materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                 materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -46,7 +52,7 @@
                 <Button Content="继续执行" Command="{Binding BtnContinue}" IsEnabled="{Binding FlgContinue}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
             </Grid>
         </DockPanel>
-        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" />
+        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="False" />
         <DockPanel DockPanel.Dock="Top">
             <TextBox Margin="8" Text="{Binding PicNum}" DockPanel.Dock="Right"
                  materialDesign:HintAssist.Hint="截图号" Width="70"
@@ -65,7 +71,7 @@
                  materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                  materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
         </DockPanel>
-        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" />
+        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="False" />
         <DockPanel DockPanel.Dock="Top" >
             <TextBox Margin="8" Text="{Binding ComparePath}" DockPanel.Dock="Top"
                  materialDesign:HintAssist.Hint="结果比较路径"
@@ -104,7 +110,7 @@
                 <Button Command="{Binding BtnCompare}" CommandParameter="{Binding Path=.}" Content="比较" Margin="8" DockPanel.Dock="Top" Grid.Column="4"/>
             </Grid>
         </DockPanel>
-        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" />
+        <ProgressBar DockPanel.Dock="Top" IsIndeterminate="False" />
         <GroupBox DockPanel.Dock="Top" Header="特殊文字说明" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
             <GroupBox.HeaderTemplate>
                 <DataTemplate>
@@ -134,7 +140,7 @@
                 <TextBlock Grid.Row="2" Grid.Column="1" Text="特殊下拉框：Index:1:1"/>
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="清空：Clear"/>
                 <TextBlock Grid.Row="3" Grid.Column="1" Text="Tab控件选择：Tab:1"/>
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="模拟键盘输入：Keys:XXX"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="模拟键盘输入：Key:XXX"/>
                 <TextBlock Grid.Row="4" Grid.Column="1" Text="多次左击：Click:3"/>
             </Grid>
         </GroupBox>
