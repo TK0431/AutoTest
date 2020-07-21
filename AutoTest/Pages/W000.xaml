@@ -13,7 +13,7 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        Title="MainWindow" Height="500" Width="600"
+        Title="MainWindow" Height="530" Width="600"
         WindowStartupLocation="CenterScreen" WindowStyle="None"
         Closing="Window_Closing" Loaded="Window_Loaded"
         >
@@ -76,6 +76,7 @@
                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" Text="自动化测试"/>
                         </DockPanel>
                     </materialDesign:ColorZone>
+                    <TextBlock DockPanel.Dock="Bottom" TextAlignment="Right" Text="{Binding Version}"/>
                     <!--<ScrollViewer materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">-->
                     <Frame Content="{Binding MainPage}" NavigationUIVisibility="Hidden"/>
                     <!--</ScrollViewer>-->

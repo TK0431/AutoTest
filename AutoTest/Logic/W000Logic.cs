@@ -21,6 +21,7 @@ namespace AutoTest.Logic
         {
             // 获取项目
             //model.UName = XmlUtility.GetXmValue("uname");
+            model.Version = XmlUtility.GetXmValue("version");
         }
     }
 }

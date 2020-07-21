@@ -23,7 +23,12 @@ namespace AutoTest.ViewModels
         /// <summary>
         /// 主Page
         /// </summary>
-        public Page MainPage { get; set; } = new P201();
+        public Page MainPage { get; set; } = new P102();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Version { get; set; }
 
         /// <summary>
         /// 用户名

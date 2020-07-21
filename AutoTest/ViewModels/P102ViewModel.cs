@@ -60,6 +60,7 @@ namespace AutoTest.ViewModels
         /// 
         /// </summary>
         public int PicNum { get; set; } = 1;
+        public int PicNum2 { get; set; } = 1;
 
         public string CaseNo { get; set; } = "Case001";
 

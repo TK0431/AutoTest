@@ -72,6 +72,10 @@ namespace AutoTest
 
         public static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            if (e.Exception.Message.StartsWith("Err:"))
+            {
+                ShowMessage(e.Exception.Message, "异常");
+            }
             if (e.Exception.Message == "【停止】")
             {
                 ShowMessage($"已手动停止", "OK");

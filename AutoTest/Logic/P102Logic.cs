@@ -13,6 +13,7 @@ using System.Drawing.Imaging;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -105,7 +106,7 @@ namespace AutoTest.Logic
                     ExcelWorksheet sh1 = excel.GetSheet(shName);
                     if (sh1 == null)
                     {
-                        App.ShowMessage("Sheet[{shName}]不存在", "Error", EnumMessageType.Error);
+                        App.ShowMessage($"Sheet[{shName}]不存在", "Error", EnumMessageType.Error);
                         return;
                     }
 
@@ -229,10 +230,11 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         public void Start(P102ViewModel model)
         {
-            model.FlgNewDir = false;
-
             // 创建路径
             CreatePath(model);
+
+            model.FlgNewDir = false;
+
             StartTest(model);
 
             App.ShowMessage($"测试完了");
@@ -241,6 +243,8 @@ namespace AutoTest.Logic
         public void Continue(P102ViewModel model)
         {
             StartTest(model);
+
+            model.FlgNewDir = false;
 
             App.ShowMessage($"测试完了");
         }
@@ -361,11 +365,25 @@ namespace AutoTest.Logic
                 );
             if (hwnd == IntPtr.Zero)
             {
-                App.ShowMessage($"Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", "Error", EnumMessageType.Error);
-                model.ContinueOrder = order;
-                model.FlgStart = false;
-                model.FlgContinue = true;
-                throw new Exception("Stop");
+                if (caseCtrl["1"].Class.StartsWith("Afx:"))
+                {
+                    List<HwndModel> list = HwndUtility.GetDeskHwndModels();
+                    foreach (HwndModel hm in list)
+                        if (hm.Class.StartsWith("Afx:"))
+                        {
+                            hwnd = hm.HwndId;
+                            break;
+                        }
+                }
+
+                if (hwnd == IntPtr.Zero)
+                {
+                    App.ShowMessage($"Exe不存在[{caseCtrl["1"].Name}-{caseCtrl["1"].Class}]", "Error", EnumMessageType.Error);
+                    model.ContinueOrder = order;
+                    model.FlgStart = false;
+                    model.FlgContinue = true;
+                    throw new Exception("Stop");
+                }
             }
             _topHwndModel = HwndUtility.GetHwndModel(hwnd);
             if (caseData["Pic"] == "●") GetPicture(model, hwnd, order);
@@ -398,6 +416,10 @@ namespace AutoTest.Logic
                 else if (caseData[key] == "Click")
                 {
                     DoClick(model, caseCtrl, key);
+                }
+                else if (caseData[key].StartsWith("Copy:"))
+                {
+                    DoCopy(model, caseCtrl, key, caseData[key].Split(':')[1]);
                 }
                 else if (caseData[key] == "Clear")
                 {
@@ -434,6 +456,8 @@ namespace AutoTest.Logic
         /// <param name="order"></param>
         private void GetPicture(P102ViewModel model, IntPtr hwnd, OrderItem order)
         {
+            //Clipboard.Clear();
+
             // Focuse
             User32Utility.SetForegroundWindow(hwnd);
             Thread.Sleep(300);
@@ -452,19 +476,21 @@ namespace AutoTest.Logic
             Thread.Sleep(100);
 
             // Pic
-            IDataObject newObject = null;
+            //IDataObject newObject = null;
             Bitmap newBitmap = null;
-            newObject = Clipboard.GetDataObject();
-            if (Clipboard.ContainsImage())
-            {
+            //newObject = Clipboard.GetDataObject();
+            //if (Clipboard.ContainsImage())
+            //{
                 newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
                 newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
                 LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
-            }
-            else
-            {
-                LogUtility.WriteError($"EXE测试：截图失败[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}", null);
-            }
+            //}
+            //else
+            //{
+            //    LogUtility.WriteError($"EXE测试：截图失败[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}", null);
+            //}
+
+            //Clipboard.Clear();
         }
 
         //private void DoMove(P102ViewModel model, ControlInfo ci)
@@ -516,6 +542,27 @@ namespace AutoTest.Logic
                 Thread.Sleep(100);
             }
             LogUtility.WriteInfo($"EXE测试：[{id}]Click点击{nums}次");
+        }
+
+        private void DoCopy(P102ViewModel model, Dictionary<string, ControlInfo> caseCtrl, string key, string value)
+        {
+            //Clipboard.Clear();
+
+            Clipboard.SetDataObject(value);
+
+            User32Utility.SetCursorPos(_topHwndModel.DeskX + caseCtrl[key].X, _topHwndModel.DeskY + caseCtrl[key].Y);
+            Thread.Sleep(100);
+
+            User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            Thread.Sleep(100);
+            User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            Thread.Sleep(100);
+
+            SendKeys.SendWait("^{v}");
+
+            //Clipboard.Clear();
+
+            LogUtility.WriteInfo($"EXE测试：[{key}]Copy{value}");
         }
 
         /// <summary>
@@ -746,18 +793,15 @@ namespace AutoTest.Logic
 
                     FileStream fs = new FileStream(file, FileMode.Create, FileAccess.Write);
                     StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.Default);
-                    string data = "";
+                    List<string> data = new List<string>();
 
                     //write colData
                     for (int i = 0; i < dt.Columns.Count; i++)
                     {
-                        data += dt.Columns[i].ColumnName.ToString();
-                        if (i < dt.Columns.Count - 1)
-                        {
-                            data += ",";
-                        }
+                        data.Add("\"" + dt.Columns[i].ColumnName.ToString() + "\"");
                     }
-                    sw.WriteLine(data);
+
+                    sw.WriteLine(string.Join(",", data));
 
                     //weite RowData
                     if (dt.Rows.Count > 0)
@@ -765,16 +809,12 @@ namespace AutoTest.Logic
                         Console.WriteLine("start write rows data");
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
-                            data = "";
+                            data = new List<string>();
                             for (int j = 0; j < dt.Columns.Count; j++)
                             {
-                                data += dt.Rows[i][j].ToString() == "" ? "null" : dt.Rows[i][j].ToString();
-                                if (j < dt.Columns.Count - 1)
-                                {
-                                    data += ",";
-                                }
+                                data.Add(dt.Rows[i][j].ToString() == "" ? "\"null\"" : "\"" + dt.Rows[i][j].ToString() + "\"");
                             }
-                            sw.WriteLine(data);
+                            sw.WriteLine(string.Join(",", data));
                         }
                     }
                     else
@@ -854,6 +894,7 @@ namespace AutoTest.Logic
                         CompareDB(model, excel, caseNo);
                     if (_oldFiles.ContainsKey(caseNo) || _newFiles.ContainsKey(caseNo))
                         CompareFL(model, excel, caseNo);
+                    GC.Collect();
                 }
 
                 SetResultSheet(model, sh);
@@ -1039,19 +1080,18 @@ namespace AutoTest.Logic
             sh.DefaultColWidth = 9.57;
             sh.Cells.Style.Numberformat.Format = "@";
 
-            int row = 1;
             if (!_oldDbFiles.ContainsKey(caseNo))
             {
                 foreach (string file in _oldDbFiles[caseNo])
                 {
-                    row = AddFile(model, sh, "", file, row);
+                    AddFile(model, sh, "", file);
                 }
             }
             else if (!_newDbFiles.ContainsKey(caseNo))
             {
                 foreach (string file in _newDbFiles[caseNo])
                 {
-                    row = AddFile(model, sh, file, "", row);
+                    AddFile(model, sh, file, "");
                 }
             }
             else
@@ -1065,11 +1105,11 @@ namespace AutoTest.Logic
                 foreach (string file in fls)
                 {
                     if (_oldDbFiles[caseNo].Contains(file) && _newDbFiles[caseNo].Contains(file))
-                        row = AddFile(model, sh, file, file, row);
+                        AddFile(model, sh, file, file);
                     else if (_oldDbFiles[caseNo].Contains(file))
-                        row = AddFile(model, sh, file, "", row);
+                        AddFile(model, sh, file, "");
                     else
-                        row = AddFile(model, sh, "", file, row);
+                        AddFile(model, sh, "", file);
                 }
             }
         }
@@ -1080,21 +1120,21 @@ namespace AutoTest.Logic
             sh.Cells.Style.Font.SetFromFont(new Font("ＭＳ Ｐゴシック", 11));
             sh.DefaultRowHeight = 13.5;
             sh.DefaultColWidth = 9.57;
+            sh.Column(1).Width = 95.7;
             sh.Cells.Style.Numberformat.Format = "@";
 
-            int row = 1;
             if (!_oldFiles.ContainsKey(caseNo))
             {
                 foreach (string file in _oldFiles[caseNo])
                 {
-                    row = AddFile(model, sh, "", file, row);
+                    AddFileFL(model, sh, "", file);
                 }
             }
             else if (!_newFiles.ContainsKey(caseNo))
             {
                 foreach (string file in _newFiles[caseNo])
                 {
-                    row = AddFile(model, sh, file, "", row);
+                    AddFileFL(model, sh, file, "");
                 }
             }
             else
@@ -1108,24 +1148,132 @@ namespace AutoTest.Logic
                 foreach (string file in fls)
                 {
                     if (_oldFiles[caseNo].Contains(file) && _newFiles[caseNo].Contains(file))
-                        row = AddFile(model, sh, file, file, row);
+                        AddFileFL(model, sh, file, file);
                     else if (_oldFiles[caseNo].Contains(file))
-                        row = AddFile(model, sh, file, "", row);
+                        AddFileFL(model, sh, file, "");
                     else
-                        row = AddFile(model, sh, "", file, row);
+                        AddFileFL(model, sh, "", file);
                 }
             }
         }
 
-        private int AddFile(P102ViewModel model, ExcelWorksheet sh, string filOld, string filNew, int row)
+        private void AddFileFL(P102ViewModel model, ExcelWorksheet sh, string filOld, string filNew)
         {
+            int row = sh.GetMaxRow(1);
+            if (row > 1) row += 2;
+
             ResultRecord record = new ResultRecord() { Sold = filOld, Snew = filNew, Link = $"#'{sh.Name}'!" + sh.Cells[row, 1].Address, };
 
             if (string.IsNullOrWhiteSpace(filOld))
             {
                 sh.Cells[row, 1].Value = filNew;
                 sh.Row(row++).SetColor(Color.Yellow);
-                sh.Cells[row++, 1].Value = SOLD + " ファイル存在なし";
+                sh.Cells[row, 1].Value = SOLD;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                sh.Cells[row, 1].Value = SOLD + " ファイル存在なし";
+                sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                sh.Cells[row++, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                row++;
+                sh.Cells[row, 1].Value = SNEW;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                sh.LoadDataText(model.ComparePath + @"\" + SNEW + @"\File\" + filNew, row, 1);
+
+                record.Sresult = "NG";
+            }
+            else if (string.IsNullOrWhiteSpace(filNew))
+            {
+                sh.Cells[row, 1].Value = filOld;
+                sh.Row(row++).SetColor(Color.Yellow);
+                sh.Cells[row, 1].Value = SOLD;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                sh.LoadDataText(model.ComparePath + @"\" + SOLD + @"\File\" + filOld, row++, 1);
+                row = sh.GetMaxRow(1) + 2;
+                sh.Cells[row, 1].Value = SNEW;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                sh.Cells[row, 1].Value = SNEW + "  ファイル存在なし";
+                sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                sh.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+
+                record.Sresult = "NG";
+            }
+            else
+            {
+                // 文件名
+                sh.Cells[row, 1].Value = filNew;
+                sh.Row(row++).SetColor(Color.Yellow);
+                // 旧数据
+                sh.Cells[row, 1].Value = SOLD;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                int strOld = row;
+                int cntOld = sh.LoadDataText(model.ComparePath + @"\" + SOLD + @"\File\" + filOld, row++, 1);
+                if (cntOld == 0)
+                {
+                    sh.Cells[row - 1, 1].Value = SOLD + " 空ファイル";
+                    sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+                row = sh.GetMaxRow(1) + 2;
+                // 新数据
+                sh.Cells[row, 1].Value = SNEW;
+                sh.Row(row++).SetColor(Color.LightGreen);
+                int strNew = row;
+                int cntNew = sh.LoadDataText(model.ComparePath + @"\" + SNEW + @"\File\" + filNew, row++, 1);
+                if (cntNew == 0)
+                {
+                    sh.Cells[row - 1, 1].Value = SNEW + " 空ファイル";
+                    sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+
+                bool flg = true;
+
+                int cnt = cntOld < cntNew ? cntOld : cntNew;
+                if (cntOld != cntNew) flg = false;
+                for (int i = 0; i < cnt; i++)
+                {
+                    if (sh.Cells[strOld + i, 1].Text != sh.Cells[strNew + i, 1].Text)
+                    {
+                        sh.Row(strOld + i).Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        sh.Row(strOld + i).Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                        sh.Row(strNew + i).Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        sh.Row(strNew + i).Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                        flg = false;
+                    }
+                }
+                for (int i = cnt; i < cntOld; i++)
+                {
+                    sh.Row(strOld + i).Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Row(strOld + i).Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+                for (int i = cnt; i < cntNew; i++)
+                {
+                    sh.Row(strNew + i).Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Row(strNew + i).Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+
+                record.Sresult = flg ? "OK" : "NG";
+            }
+
+            _results.Add(record);
+
+            LogUtility.WriteInfo($"EXE测试：DBCompare:[{filOld}-{filNew}]完了");
+        }
+
+        private void AddFile(P102ViewModel model, ExcelWorksheet sh, string filOld, string filNew)
+        {
+            int row = sh.GetMaxRow(1);
+            if (row > 1) row += 2;
+
+            ResultRecord record = new ResultRecord() { Sold = filOld, Snew = filNew, Link = $"#'{sh.Name}'!" + sh.Cells[row, 1].Address, };
+
+            if (string.IsNullOrWhiteSpace(filOld))
+            {
+                sh.Cells[row, 1].Value = filNew;
+                sh.Row(row++).SetColor(Color.Yellow);
+                sh.Cells[row, 1].Value = SOLD + " ファイル存在なし";
+                sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                sh.Cells[row++, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                row++;
                 sh.LoadData(model.ComparePath + @"\" + SNEW + @"\DB\" + filNew, row++, 1);
 
                 record.Sresult = "NG";
@@ -1134,8 +1282,11 @@ namespace AutoTest.Logic
             {
                 sh.Cells[row, 1].Value = filOld;
                 sh.Row(row++).SetColor(Color.Yellow);
-                sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row++, 1);
+                sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row, 1);
+                row = sh.GetMaxRow(1) + 2;
                 sh.Cells[row, 1].Value = SNEW + "  ファイル存在なし";
+                sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                sh.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
 
                 record.Sresult = "NG";
             }
@@ -1147,20 +1298,30 @@ namespace AutoTest.Logic
                 // 旧数据
                 int strOld = row;
                 int cntOld = sh.LoadData(model.ComparePath + @"\" + SOLD + @"\DB\" + filOld, row++, 1);
-                if (cntOld == 0) sh.Cells[row - 1, 1].Value = SOLD + " 空ファイル";
-                row = sh.GetMaxRow() + 1;
+                if (cntOld == 0)
+                {
+                    sh.Cells[row - 1, 1].Value = SOLD + " 空ファイル";
+                    sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+                row = sh.GetMaxRow(1) + 2;
                 // 新数据
                 int strNew = row;
                 int cntNew = sh.LoadData(model.ComparePath + @"\" + SNEW + @"\DB\" + filNew, row++, 1);
-                if (cntNew == 0) sh.Cells[row - 1, 1].Value = SNEW + " 空ファイル";
-                row = sh.GetMaxRow() + 1;
+                if (cntNew == 0)
+                {
+                    sh.Cells[row - 1, 1].Value = SNEW + " 空ファイル";
+                    sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                }
+                row = sh.GetMaxRow(1) + 2;
 
                 int colCnt = sh.GetMaxColumn(strOld);
 
                 int cnt = cntOld > cntNew ? cntOld : cntNew;
                 if (cnt == 1) cnt = 2;
 
-                if (colCnt > 0 && cnt > 0)
+                if (cntOld > 0 && cntNew > 0)
                 {
                     // 比较结果
                     // Head
@@ -1184,8 +1345,6 @@ namespace AutoTest.Logic
             _results.Add(record);
 
             LogUtility.WriteInfo($"EXE测试：DBCompare:[{filOld}-{filNew}]完了");
-
-            return sh.GetMaxRow() + 2;
         }
 
         private void SetResultSheet(P102ViewModel model, ExcelWorksheet sh)

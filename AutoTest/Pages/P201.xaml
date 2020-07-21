@@ -14,24 +14,59 @@
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
       d:DesignHeight="430" d:DesignWidth="600">
-
-    <DockPanel>
-        <DockPanel DockPanel.Dock="Top">
-            <Button Content="读取" Command="{Binding BtnReadFile}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Right" Margin="8"/>
-            <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+    <GroupBox Header="结算单导入" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
+        <GroupBox.HeaderTemplate>
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Dog" Height="32" Width="32" VerticalAlignment="Center" />
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
+                </StackPanel>
+            </DataTemplate>
+        </GroupBox.HeaderTemplate>
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" IsEnabled="{Binding FlgFile}">
+                <Button Content="读取" Command="{Binding BtnReadFile}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Right" Margin="8"/>
+                <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                       materialDesign:TextFieldAssist.SuffixText="选择"
                       materialDesign:ColorZoneAssist.Mode="Inverted"
                       materialDesign:HintAssist.Hint="脚本文件"
                       DisplayMemberPath="Name" Margin="8"/>
+            </DockPanel>
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="8" IsEnabled="{Binding FlgDate}"/>
+                <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8" IsEnabled="{Binding FlgStart}"/>
+            </Grid>
+            <Grid DockPanel.Dock="Top" IsEnabled="{Binding FlgContinue}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ComboBox ItemsSource="{Binding WebElements}" Grid.Column="0" SelectedItem="{Binding SelectedElement}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                      materialDesign:TextFieldAssist.SuffixText="选择"
+                      materialDesign:ColorZoneAssist.Mode="Inverted"
+                      materialDesign:HintAssist.Hint="动作选择"
+                      DisplayMemberPath="Name" Margin="8"/>
+                <Button Content="继续" Command="{Binding BtnContinu}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
+            </Grid>
+            <Grid Visibility="{Binding FlgDoing}">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" Margin="8" Grid.RowSpan="2"/>
+                <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding Msg}" Margin="8"/>
+                <Button Content="强制停止" Command="{Binding BtnStop}" CommandParameter="{Binding Path=.}" Grid.Row="1" Grid.Column="1" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" TextAlignment="Left" Text="※仅Web模拟期间可强制停止" Margin="8"/>
+            </Grid>
         </DockPanel>
-        <Grid DockPanel.Dock="Top">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期" Style="{StaticResource MaterialDesignOutlinedDatePicker}" Margin="8" />
-            <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
-        </Grid>
-        <Grid/>
-    </DockPanel>
+    </GroupBox>
 </Page>

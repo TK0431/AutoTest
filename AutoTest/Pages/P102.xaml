@@ -54,7 +54,7 @@
         </DockPanel>
         <ProgressBar DockPanel.Dock="Top" IsIndeterminate="False" />
         <DockPanel DockPanel.Dock="Top">
-            <TextBox Margin="8" Text="{Binding PicNum}" DockPanel.Dock="Right"
+            <TextBox Margin="8" Text="{Binding PicNum2}" DockPanel.Dock="Right"
                  materialDesign:HintAssist.Hint="截图号" Width="70"
                  materialDesign:HintAssist.IsFloating="True"
                  materialDesign:TextFieldAssist.HasOutlinedTextField="True"

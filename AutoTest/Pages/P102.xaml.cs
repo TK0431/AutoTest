@@ -70,7 +70,7 @@ namespace AutoTest.Pages
                 }
 
                 // Pic save
-                string picFullPath = _model.PicPath + @"\" + _model.CaseNo + @"\" + _model.PicNum.ToString().PadLeft(3, '0') + ".png";
+                string picFullPath = _model.PicPath + @"\" + _model.CaseNo + @"\" + _model.PicNum2.ToString().PadLeft(3, '0') + ".png";
                 System.Windows.Forms.IDataObject newObject = null;
                 Bitmap newBitmap = null;
                 System.Windows.Forms.Application.DoEvents();
@@ -83,7 +83,7 @@ namespace AutoTest.Pages
                 newBitmap.Dispose();
 
                 // No + 1
-                _model.PicNum = _model.PicNum + 1;
+                _model.PicNum2 = _model.PicNum2 + 1;
 
                 LogUtility.WriteInfo($"图片保存成功{picFullPath}");
             }
