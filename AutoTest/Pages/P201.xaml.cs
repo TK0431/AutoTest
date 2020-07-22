@@ -1,4 +1,5 @@
 ﻿using AutoTest.ViewModels;
+using FrameWork.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,11 @@ namespace AutoTest.Pages
 
             _model = new P201ViewModel();
             this.DataContext = _model;
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ProcessUtility.KillProcess("chromedriver");
         }
     }
 }

@@ -437,6 +437,10 @@ namespace AutoTest.Logic
                 {
                     DoInputKeys(model, caseCtrl, key, caseData[key].Split(':')[1]);
                 }
+                else if (caseData[key] == "Enter" || caseData[key] == "Up" || caseData[key] == "Down" || caseData[key] == "Left" || caseData[key] == "Right" || caseData[key] == "PgUp" || caseData[key] == "PgDown")
+                {
+                    DoInputKey(model, caseData[key]);
+                }
                 //else if (caseData[key].StartsWith("Move"))
                 //{
                 //    DoMove(model, caseCtrl[key]);
@@ -481,9 +485,9 @@ namespace AutoTest.Logic
             //newObject = Clipboard.GetDataObject();
             //if (Clipboard.ContainsImage())
             //{
-                newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
-                newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
-                LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
+            newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
+            newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
+            LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
             //}
             //else
             //{
@@ -648,6 +652,37 @@ namespace AutoTest.Logic
             }
 
             LogUtility.WriteInfo($"EXE测试：[{id}]DoInputKeys[{value}]");
+        }
+
+        private void DoInputKey(P102ViewModel model, string value)
+        {
+            switch (value)
+            {
+                case "Enter":
+                    SendKeys.SendWait("{ENTER}");
+                    break;
+                case "Up":
+                    SendKeys.SendWait("{UP}");
+                    break;
+                case "Down":
+                    SendKeys.SendWait("{DOWN}");
+                    break;
+                case "Left":
+                    SendKeys.SendWait("{LEFT}");
+                    break;
+                case "Right":
+                    SendKeys.SendWait("{RIGHT}");
+                    break;
+                case "PgUp":
+                    SendKeys.SendWait("{PGUP}");
+                    break;
+                case "PgDown":
+                    SendKeys.SendWait("{PGDN}");
+                    break;
+            }
+            Thread.Sleep(100);
+
+            LogUtility.WriteInfo($"EXE测试：DoInputKey[{value}]");
         }
 
         /// <summary>

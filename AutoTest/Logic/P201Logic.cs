@@ -16,6 +16,8 @@ namespace AutoTest.Logic
 {
     public class P201Logic
     {
+        private SeleniumUtility _su;
+
         /// <summary>
         /// 初始化
         /// </summary>
@@ -186,6 +188,8 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         public void Start(P201ViewModel model)
         {
+            ProcessUtility.KillProcess("chromedriver");
+
             Task task = Task.Run(() => DoSelenium(model));
 
             // 执行中
@@ -195,62 +199,74 @@ namespace AutoTest.Logic
         private void DoSelenium(P201ViewModel model, string continuEvent = null)
         {
             model.Msg = "浏览器模拟操作中...";
-            using (SeleniumUtility su = new SeleniumUtility(model))
+
+            // 参数设定
+            string arg1 = (model.Arg1 + "~" + model.Arg1).Replace("/", "-");
+            string arg2 = model.Arg1.Replace("/", "-");
+            if (continuEvent == null)
             {
+                _su = new SeleniumUtility();
                 // 输出路径
-                model.OutPath = Environment.CurrentDirectory + @"\" + su.SuTime;
+                model.OutPath = Environment.CurrentDirectory + @"\" + _su.SuTime;
 
-                // 参数设定
-                string arg1 = (model.Arg1 + "~" + model.Arg1).Replace("/", "-");
-                string arg2 = model.Arg1.Replace("/", "-");
-                su.AddArg("$arg(1)", arg1);
-                su.AddArg("$arg(2)", arg2);
-                LogUtility.WriteInfo($"【参数】-【$arg(1)】-【{arg1}】");
-                LogUtility.WriteInfo($"【参数】-【$arg(2)】-【{arg2}】");
+                _su.AddArg("$arg(1)", arg1);
+                _su.AddArg("$arg(2)", arg2);
+            }
+            else
+            {
+                _su.SetArg("$arg(1)", arg1);
+                _su.SetArg("$arg(2)", arg2);
+            }
 
-                // 遍历Orders
-                foreach (SeleniumOrder order in model.ExcelModel.Orders)
+            LogUtility.WriteInfo($"【参数】-【$arg(1)】-【{arg1}】");
+            LogUtility.WriteInfo($"【参数】-【$arg(2)】-【{arg2}】");
+
+            // 遍历Orders
+            foreach (SeleniumOrder order in model.ExcelModel.Orders)
+            {
+                LogUtility.WriteInfo($"【Order開始】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
+
+                // 清除Elements
+                _su.ClearElements();
+
+                // 遍历Events
+                foreach (SeleniumEvent even in model.ExcelModel.Events[order.View][order.Event])
                 {
-                    LogUtility.WriteInfo($"【Order開始】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
-
-                    // 清除Elements
-                    su.ClearElements();
-
-                    // 遍历Events
-                    foreach (SeleniumEvent even in model.ExcelModel.Events[order.View][order.Event])
+                    if (model.FlgStop)
                     {
-                        if (model.FlgStop)
-                        {
-                            // 强制终了
-                            SetFlgs(model, 1);
-                            App.ShowMessage("已强制终了", "OK");
-                            return;
-                        }
-
-                        // 继续执行
-                        if (continuEvent != null && continuEvent != even.Back)
-                            continue;
-                        else
-                            continuEvent = null;
-
-                        try
-                        {
-                            // 执行命令
-                            su.DoCommand(even);
-                        }
-                        catch (Exception e)
-                        {
-                            // 异常中断后
-                            SetFlgs(model, 4);
-                            App.ShowMessage(e.Message,"异常",EnumMessageType.Error,e);
-                            return;
-                        }
-                        LogUtility.WriteInfo($"【Event执行成功】-【{even.No}-{even.Event}】");
+                        // 强制终了
+                        SetFlgs(model, 4);
+                        App.ShowMessage("已强制终了", "OK");
+                        return;
                     }
 
-                    LogUtility.WriteInfo($"【Order终了】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
+                    // 继续执行
+                    if (continuEvent != null && continuEvent != even.Back)
+                        continue;
+                    else
+                        continuEvent = null;
+
+                    try
+                    {
+                        // 执行命令
+                        _su.DoCommand(even);
+                    }
+                    catch (Exception e)
+                    {
+                        // 异常中断后
+                        SetFlgs(model, 4);
+                        App.ShowMessage(e.Message, "异常", EnumMessageType.Error, e);
+                        return;
+                    }
+                    LogUtility.WriteInfo($"【Event执行成功】-【{even.No}-{even.Event}】");
                 }
+
+                LogUtility.WriteInfo($"【Order终了】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
             }
+
+            _su.Dispose();
+
+            //model.OutPath = @"E:\GitHub\AutoTest\AutoTest\bin\Debug\20200722174729";
 
             // Excel 整理
             CreateExel(model, model.OutPath);
@@ -331,6 +347,8 @@ namespace AutoTest.Logic
             }
 
             model.Msg = "透视表数据刷新中...";
+            LogUtility.WriteInfo($"透视表数据刷新中...");
+
             //刷新透视表
             ExcelHelper.RefreshPivotTable(path + @"\透视表.xlsx");
             LogUtility.WriteInfo($"【透视表】透视表刷新完了");
@@ -344,17 +362,23 @@ namespace AutoTest.Logic
                 ExcelWorksheet shOrgIn = excel.GetSheet("采购入库");
                 int maxOrgInRow = shOrgIn.GetMaxRow(2);
 
-                if (shOrgIn.Cells[maxOrgInRow + 1, 1].Text != "总计") ;
+                if (shOrgIn.Cells[maxOrgInRow + 1, 1].Text != "总计")
+                {
+
+                }
 
                 model.Msg = "电商销售单导入做成中...";
                 using (ExcelXlsUtility excelIn = new ExcelXlsUtility(Environment.CurrentDirectory + @"\ExcelScript\In.xls"))
                 {
                     ISheet shIn = excelIn.GetSheet();
                     int shInColCnt = shIn.GetRow(0).Cells.Count;
+                    List<string> codes = new List<string>();
+                    int indexCode0 = -1;
+                    int indexCode1 = -1;
 
                     foreach (SeleniumCheckItem item in model.ExcelModel.Initems)
                     {
-                        string name1 = shIn.GetRow(0).GetCell(item.col1).StringCellValue;
+                        string name1 = shIn.GetRow(0).GetCell(item.col1 - 1).StringCellValue;
                         string name2 = shOrgIn.Cells[3, item.col2].Text;
                         if (name1 != item.name1)
                         {
@@ -372,7 +396,22 @@ namespace AutoTest.Logic
                             shIn.CreateRowCells(shInColCnt);
                             shIn.GetRow(i - 3).GetCell(item.col1 - 1).SetCellValue(shOrgIn.Cells[i, item.col2].Text);
                         }
+
+                        if (name1 == "产品编码") indexCode0 = item.col1 - 1;
+                        if (name1 == "客户订单号") indexCode1 = item.col1 - 1;
+
                         LogUtility.WriteInfo($"【退货】数据复制：{item.col2}-{item.name2}->{item.col1}-{item.name1}");
+                    }
+
+                    // 重复【产品编码】的【客户订单号】+【.1】
+                    for (int i = 4; i <= maxOrgInRow; i++)
+                    {
+                        string value0 = shIn.GetRow(i - 3).GetCell(indexCode0).StringCellValue;
+                        string value1 = shIn.GetRow(i - 3).GetCell(indexCode1).StringCellValue;
+                        if (codes.Contains(value0))
+                            shIn.GetRow(i - 3).GetCell(indexCode1).SetCellValue(value1 + ".1");
+                        else
+                            codes.Add(value0);
                     }
 
                     excelIn.SaveAs(path + @"\电商销售单导入.xls");
@@ -384,7 +423,10 @@ namespace AutoTest.Logic
                 ExcelWorksheet shOrgOut = excel.GetSheet("采购退货");
                 int maxOrgOutRow = shOrgOut.GetMaxRow(2);
 
-                if (shOrgOut.Cells[maxOrgOutRow + 1, 1].Text != "总计") ;
+                if (shOrgOut.Cells[maxOrgOutRow + 1, 1].Text != "总计")
+                {
+
+                }
 
                 using (ExcelXlsUtility excelOut = new ExcelXlsUtility(Environment.CurrentDirectory + @"\ExcelScript\Out.xls"))
                 {
@@ -393,7 +435,7 @@ namespace AutoTest.Logic
 
                     foreach (SeleniumCheckItem item in model.ExcelModel.Outitems)
                     {
-                        string name1 = shOut.GetRow(0).GetCell(item.col1).StringCellValue;
+                        string name1 = shOut.GetRow(0).GetCell(item.col1 - 1).StringCellValue;
                         string name2 = shOrgOut.Cells[3, item.col2].Text;
                         if (name1 != item.name1)
                         {
@@ -479,7 +521,17 @@ namespace AutoTest.Logic
         /// <param name="model"></param>
         public void BtnContinu(P201ViewModel model)
         {
-            
+            if (string.IsNullOrEmpty(model.SelectedElement))
+            {
+                App.ShowMessage("请选择后续动作", "OK");
+                return;
+            }
+
+            _su.FlgStop = false;
+            Task task = Task.Run(() => DoSelenium(model, model.SelectedElement));
+
+            // 执行中
+            SetFlgs(model, 3);
         }
 
         /// <summary>
@@ -489,6 +541,9 @@ namespace AutoTest.Logic
         public void Stop(P201ViewModel model)
         {
             model.FlgStop = true;
+
+            if (_su != null)
+                _su.FlgStop = true;
         }
     }
 }

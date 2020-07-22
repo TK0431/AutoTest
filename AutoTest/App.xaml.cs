@@ -33,6 +33,7 @@ namespace AutoTest
             if (Exist)//如果没有运行
             {
                 this.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 // 启动主画面
                 W000 win = new W000();
                 this.MainWindow = win;
@@ -89,6 +90,27 @@ namespace AutoTest
             }
 
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// 非UI线程抛出全局异常事件处理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                Exception exception = e.ExceptionObject as Exception;
+                if (exception != null)
+                {
+                    ShowMessage($"程序异常", "OK", EnumMessageType.Error, exception);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"程序异常", "OK", EnumMessageType.Error, ex);
+            }
         }
     }
 }

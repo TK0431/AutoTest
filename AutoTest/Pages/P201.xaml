@@ -13,7 +13,8 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      d:DesignHeight="430" d:DesignWidth="600">
+      d:DesignHeight="430" d:DesignWidth="600"
+      Unloaded="Page_Unloaded">
     <GroupBox Header="结算单导入" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
         <GroupBox.HeaderTemplate>
             <DataTemplate>
@@ -48,8 +49,7 @@
                 <ComboBox ItemsSource="{Binding WebElements}" Grid.Column="0" SelectedItem="{Binding SelectedElement}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                       materialDesign:TextFieldAssist.SuffixText="选择"
                       materialDesign:ColorZoneAssist.Mode="Inverted"
-                      materialDesign:HintAssist.Hint="动作选择"
-                      DisplayMemberPath="Name" Margin="8"/>
+                      materialDesign:HintAssist.Hint="动作选择" Margin="8"/>
                 <Button Content="继续" Command="{Binding BtnContinu}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
             </Grid>
             <Grid Visibility="{Binding FlgDoing}">

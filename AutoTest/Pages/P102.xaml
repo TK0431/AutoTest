@@ -130,6 +130,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="自主追加控件：$CustomControl"/>
@@ -142,6 +143,7 @@
                 <TextBlock Grid.Row="3" Grid.Column="1" Text="Tab控件选择：Tab:1"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="模拟键盘输入：Key:XXX"/>
                 <TextBlock Grid.Row="4" Grid.Column="1" Text="多次左击：Click:3"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="特殊按键：Enter,Up,Down,Left,Right,PgUp,PgDown"/>
             </Grid>
         </GroupBox>
     </DockPanel>

@@ -27,3 +27,9 @@
     1.Copy执行后，截图异常
 
 ### end
+
+### version value="Version:2020.0722.0"
+
+    1.增加Enter,Up,Down,Left,Right,PgUp,PgDown
+
+### end

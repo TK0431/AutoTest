@@ -1,4 +1,5 @@
 ﻿using AutoTest.Logic;
+using FrameWork.Models;
 using FrameWork.ViewModels.Base;
 using System;
 using System.Collections.ObjectModel;
@@ -11,12 +12,22 @@ namespace AutoTest.ViewModels
     /// <summary>
     /// EXE测试
     /// </summary>
-    public class P201ViewModel : SeleniumBaseViewModel
+    public class P201ViewModel : BaseViewModel
     {
         /// <summary>
         /// Logic
         /// </summary>
         private P201Logic _logic = new P201Logic();
+
+        /// <summary>
+        /// Exel脚本Model
+        /// </summary>
+        public SeleniumScriptModel ExcelModel { get; set; }
+
+        /// <summary>
+        /// Exel脚本Model
+        /// </summary>
+        public bool FlgStop { get; set; } = false;
 
         /// <summary>
         /// 文件 下拉框

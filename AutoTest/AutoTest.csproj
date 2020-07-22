@@ -205,6 +205,15 @@
     <None Include="ExcelScript\DB\tb_userInfo_4.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ExcelScript\In.xls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExcelScript\Out.xls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExcelScript\Sample.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ExcelScript\Selenium.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
