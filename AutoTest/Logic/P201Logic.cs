@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -201,8 +202,11 @@ namespace AutoTest.Logic
             model.Msg = "浏览器模拟操作中...";
 
             // 参数设定
-            string arg1 = (model.Arg1 + "~" + model.Arg1).Replace("/", "-");
-            string arg2 = model.Arg1.Replace("/", "-");
+            //string arg1 = (model.Arg1 + "~" + model.Arg1).Replace("/", "-");
+            //string arg2 = model.Arg1.Replace("/", "-");
+            string arg2 = Convert.ToDateTime(model.Arg1).ToString("yyyy-MM-dd");
+            string arg1 = arg2 + "~" + arg2;
+            
             if (continuEvent == null)
             {
                 _su = new SeleniumUtility();

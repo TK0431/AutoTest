@@ -19,7 +19,7 @@
         <GroupBox.HeaderTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="Dog" Height="32" Width="32" VerticalAlignment="Center" />
+                    <materialDesign:PackIcon Kind="LeafMaple" Height="32" Width="32" VerticalAlignment="Center" />
                     <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
                 </StackPanel>
             </DataTemplate>
@@ -38,7 +38,8 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="8" IsEnabled="{Binding FlgDate}"/>
+                <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期"
+                            Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="8" IsEnabled="{Binding FlgDate}"/>
                 <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8" IsEnabled="{Binding FlgStart}"/>
             </Grid>
             <Grid DockPanel.Dock="Top" IsEnabled="{Binding FlgContinue}">
