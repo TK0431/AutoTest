@@ -235,6 +235,7 @@
     <None Include="ExcelScript\SeleniumPs123.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ExcelScript\SeleniumTemp.xlsx" />
     <None Include="ExcelScript\UT_Test01.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
