@@ -15,7 +15,7 @@
       Background="{DynamicResource MaterialDesignPaper}"
       d:DesignHeight="430" d:DesignWidth="600"
       Unloaded="Page_Unloaded">
-    <GroupBox Header="结算单导入" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
+    <GroupBox Header="猫超" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
         <GroupBox.HeaderTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
@@ -25,7 +25,21 @@
             </DataTemplate>
         </GroupBox.HeaderTemplate>
         <DockPanel>
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <RadioButton Content="结算单导入" Grid.Column="0" IsChecked="True" Margin="8 0"/>
+                <RadioButton Content="销售日报(未开发)" Grid.Column="1" IsEnabled="False" Margin="8 0"/>
+            </Grid>
             <DockPanel DockPanel.Dock="Top" IsEnabled="{Binding FlgFile}">
+                <PasswordBox DockPanel.Dock="Right" Width="150"
+                      materialDesign:HintAssist.Hint="脚本文件密码"
+                      materialDesign:HintAssist.IsFloating="True" Margin="16"
+                      pass:PasswordBoxBindingHelper.Attach="true" 
+                      pass:PasswordBoxBindingHelper.Password="{Binding Path=ExcelPassWord,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="读取" Command="{Binding BtnReadFile}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Right" Margin="8"/>
                 <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                       materialDesign:TextFieldAssist.SuffixText="选择"
@@ -38,7 +52,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期"
+                <DatePicker Text="{Binding Arg1,Mode=TwoWay}" materialDesign:HintAssist.Hint="对账截至日期 (结算单导入专用)"
                             Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="8" IsEnabled="{Binding FlgDate}"/>
                 <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8" IsEnabled="{Binding FlgStart}"/>
             </Grid>

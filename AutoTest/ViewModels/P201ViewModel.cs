@@ -41,6 +41,11 @@ namespace AutoTest.ViewModels
         public ICommand BtnReadFile { get; set; }
 
         /// <summary>
+        /// Excel 密码
+        /// </summary>
+        public string ExcelPassWord { get; set; }
+
+        /// <summary>
         /// 日期控件
         /// </summary>
         public string Arg1 { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");

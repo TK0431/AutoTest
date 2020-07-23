@@ -1205,7 +1205,7 @@ namespace AutoTest.Logic
                 sh.Row(row++).SetColor(Color.Yellow);
                 sh.Cells[row, 1].Value = SOLD;
                 sh.Row(row++).SetColor(Color.LightGreen);
-                sh.Cells[row, 1].Value = SOLD + " ファイル存在なし";
+                sh.Cells[row, 1].Value = "ファイル存在なし";
                 sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 sh.Cells[row++, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
                 row++;
@@ -1225,7 +1225,7 @@ namespace AutoTest.Logic
                 row = sh.GetMaxRow(1) + 2;
                 sh.Cells[row, 1].Value = SNEW;
                 sh.Row(row++).SetColor(Color.LightGreen);
-                sh.Cells[row, 1].Value = SNEW + "  ファイル存在なし";
+                sh.Cells[row, 1].Value = "ファイル存在なし";
                 sh.Cells[row, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 sh.Cells[row, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
 
@@ -1243,9 +1243,8 @@ namespace AutoTest.Logic
                 int cntOld = sh.LoadDataText(model.ComparePath + @"\" + SOLD + @"\File\" + filOld, row++, 1);
                 if (cntOld == 0)
                 {
-                    sh.Cells[row - 1, 1].Value = SOLD + " 空ファイル";
+                    sh.Cells[row - 1, 1].Value ="空ファイル";
                     sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
                 }
                 row = sh.GetMaxRow(1) + 2;
                 // 新数据
@@ -1255,10 +1254,14 @@ namespace AutoTest.Logic
                 int cntNew = sh.LoadDataText(model.ComparePath + @"\" + SNEW + @"\File\" + filNew, row++, 1);
                 if (cntNew == 0)
                 {
-                    sh.Cells[row - 1, 1].Value = SNEW + " 空ファイル";
+                    sh.Cells[row - 1, 1].Value = "空ファイル";
                     sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    sh.Cells[row - 1, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
                 }
+
+                if(cntOld == 0 && cntNew != 0)
+                    sh.Cells[cntOld, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                if (cntOld != 0 && cntNew == 0)
+                    sh.Cells[cntNew, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
 
                 bool flg = true;
 

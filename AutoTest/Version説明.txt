@@ -33,3 +33,9 @@
     1.增加Enter,Up,Down,Left,Right,PgUp,PgDown
 
 ### end
+
+### version value="Version:2020.0723.0"
+
+    1.修复文件对比，都为空文件时显示红色
+
+### end

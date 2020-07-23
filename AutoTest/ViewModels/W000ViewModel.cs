@@ -23,7 +23,7 @@ namespace AutoTest.ViewModels
         /// <summary>
         /// 主Page
         /// </summary>
-        public Page MainPage { get; set; } = new P201();
+        public Page MainPage { get; set; } = new P102();
 
         /// <summary>
         /// 
@@ -56,12 +56,12 @@ namespace AutoTest.ViewModels
             // Wbs 菜单
             MenuItems = new ObservableCollection<EnumItem>()
             {
-                //PageEnum.P001.GetItem(), // 设置
+                PageEnum.P001.GetItem(), // 设置
                 PageEnum.P101.GetItem(), // EXE解析
                 PageEnum.P102.GetItem(), // EXE测试
                 PageEnum.P103.GetItem(), // EXE结果
-                PageEnum.P201.GetItem(), // WEB测试
-                PageEnum.P202.GetItem(), // WEB结果
+                //PageEnum.P201.GetItem(), // WEB测试
+                //PageEnum.P202.GetItem(), // WEB结果
             };
         }
     }

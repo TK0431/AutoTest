@@ -20,6 +20,56 @@ namespace AutoTest.Logic
         private SeleniumUtility _su;
 
         /// <summary>
+        /// 权限设置
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="tp"></param>
+        private void SetFlgs(P201ViewModel model, int tp)
+        {
+            switch (tp)
+            {
+                // 初期化
+                case 1:
+                    model.FlgFile = true;
+                    model.FlgDate = false;
+                    model.FlgStart = false;
+                    model.FlgContinue = false;
+                    model.FlgDoing = Visibility.Hidden;
+                    model.FlgStop = false;
+                    break;
+                // 读取后
+                case 2:
+                    model.FlgFile = true;
+                    model.FlgDate = true;
+                    model.FlgStart = true;
+                    model.FlgContinue = false;
+                    model.FlgDoing = Visibility.Hidden;
+                    model.FlgStop = false;
+                    break;
+                // 执行中
+                case 3:
+                    model.FlgFile = false;
+                    model.FlgDate = false;
+                    model.FlgStart = false;
+                    model.FlgContinue = false;
+                    model.FlgDoing = Visibility.Visible;
+                    model.FlgStop = false;
+                    break;
+                // 异常中断后
+                case 4:
+                    model.FlgFile = true;
+                    model.FlgDate = true;
+                    model.FlgStart = false;
+                    model.FlgContinue = true;
+                    model.FlgDoing = Visibility.Hidden;
+                    model.FlgStop = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
         /// 初始化
         /// </summary>
         /// <param name="model"></param>
@@ -56,7 +106,7 @@ namespace AutoTest.Logic
 
             // 脚本文件读取
             model.ExcelModel = new SeleniumScriptModel();
-            using (ExcelUtility excel = new ExcelUtility(model.SelectedFile.FullName))
+            using (ExcelUtility excel = new ExcelUtility(model.SelectedFile.FullName, model.ExcelPassWord))
             {
                 // Menu Sheet读取
                 ExcelWorksheet sh = excel.GetSheet("Menu");
@@ -472,51 +522,6 @@ namespace AutoTest.Logic
         {
             App.ShowMessage(msg, "异常", EnumMessageType.Error);
             model.FlgContinue = true;
-        }
-
-        private void SetFlgs(P201ViewModel model, int tp)
-        {
-            switch (tp)
-            {
-                // 初期化
-                case 1:
-                    model.FlgFile = true;
-                    model.FlgDate = false;
-                    model.FlgStart = false;
-                    model.FlgContinue = false;
-                    model.FlgDoing = Visibility.Hidden;
-                    model.FlgStop = false;
-                    break;
-                // 读取后
-                case 2:
-                    model.FlgFile = true;
-                    model.FlgDate = true;
-                    model.FlgStart = true;
-                    model.FlgContinue = false;
-                    model.FlgDoing = Visibility.Hidden;
-                    model.FlgStop = false;
-                    break;
-                // 执行中
-                case 3:
-                    model.FlgFile = false;
-                    model.FlgDate = false;
-                    model.FlgStart = false;
-                    model.FlgContinue = false;
-                    model.FlgDoing = Visibility.Visible;
-                    model.FlgStop = false;
-                    break;
-                // 异常中断后
-                case 4:
-                    model.FlgFile = true;
-                    model.FlgDate = true;
-                    model.FlgStart = false;
-                    model.FlgContinue = true;
-                    model.FlgDoing = Visibility.Hidden;
-                    model.FlgStop = false;
-                    break;
-                default:
-                    break;
-            }
         }
 
         /// <summary>
