@@ -152,7 +152,7 @@ namespace AutoTest.Logic
 
                     // 遍历每个页面
                     int colMax = shTemp.GetMaxColumn(1);
-                    for (int col = 1; col <= colMax; col += 3)
+                    for (int col = 1; col <= colMax; col += 4)
                     {
                         // 如果页面未定义编号跳过
                         string webId = shTemp.Cells[1, col].Text;
@@ -163,21 +163,22 @@ namespace AutoTest.Logic
                         for (int row = 3; row <= shTemp.GetMaxRow(col + 1); row++)
                         {
                             // Event空白跳过
-                            if (!string.IsNullOrWhiteSpace(shTemp.Cells[row, col + 1].Text))
+                            if (!string.IsNullOrWhiteSpace(shTemp.Cells[row, col + 2].Text))
                             {
                                 // 添加Event
                                 SeleniumEvent tempEvent = new SeleniumEvent()
                                 {
                                     No = shTemp.Cells[row, col].Text,
-                                    Event = shTemp.Cells[row, col + 1].Text,
-                                    Back = shTemp.Cells[row, col + 2].Text,
+                                    Key = shTemp.Cells[row, col + 1].Text,
+                                    Event = shTemp.Cells[row, col + 2].Text,
+                                    Back = shTemp.Cells[row, col + 3].Text,
                                 };
                                 colEvents.Add(tempEvent);
 
                                 if (!string.IsNullOrWhiteSpace(tempEvent.Back))
                                     model.WebElements.Add(tempEvent.Back);
 
-                                LogUtility.WriteInfo($"【{shName}-{webId}】Sheet读取数据【{tempEvent.No}-{tempEvent.Event}】");
+                                LogUtility.WriteInfo($"【{shName}-{webId}】Sheet读取数据【{tempEvent.Key}-{tempEvent.Event}】");
                             }
                         }
 
@@ -256,7 +257,7 @@ namespace AutoTest.Logic
             //string arg2 = model.Arg1.Replace("/", "-");
             string arg2 = Convert.ToDateTime(model.Arg1).ToString("yyyy-MM-dd");
             string arg1 = arg2 + "~" + arg2;
-            
+
             if (continuEvent == null)
             {
                 _su = new SeleniumUtility();
@@ -278,41 +279,29 @@ namespace AutoTest.Logic
             // 遍历Orders
             foreach (SeleniumOrder order in model.ExcelModel.Orders)
             {
+                if (model.FlgStop)
+                {
+                    // 强制终了
+                    SetFlgs(model, 4);
+                    App.ShowMessage("已强制终了", "OK");
+                    return;
+                }
+
                 LogUtility.WriteInfo($"【Order開始】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
 
                 // 清除Elements
                 _su.ClearElements();
 
-                // 遍历Events
-                foreach (SeleniumEvent even in model.ExcelModel.Events[order.View][order.Event])
+                try
                 {
-                    if (model.FlgStop)
-                    {
-                        // 强制终了
-                        SetFlgs(model, 4);
-                        App.ShowMessage("已强制终了", "OK");
-                        return;
-                    }
-
-                    // 继续执行
-                    if (continuEvent != null && continuEvent != even.Back)
-                        continue;
-                    else
-                        continuEvent = null;
-
-                    try
-                    {
-                        // 执行命令
-                        _su.DoCommand(even);
-                    }
-                    catch (Exception e)
-                    {
-                        // 异常中断后
-                        SetFlgs(model, 4);
-                        App.ShowMessage(e.Message, "异常", EnumMessageType.Error, e);
-                        return;
-                    }
-                    LogUtility.WriteInfo($"【Event执行成功】-【{even.No}-{even.Event}】");
+                    _su.DoEvents(model.ExcelModel.Events[order.View][order.Event], ref continuEvent);
+                }
+                catch (Exception e)
+                {
+                    // 异常中断后
+                    SetFlgs(model, 4);
+                    App.ShowMessage(e.Message, "异常", EnumMessageType.Error, e);
+                    return;
                 }
 
                 LogUtility.WriteInfo($"【Order终了】-【{order.Case}-{order.View}-{order.ViewName}-{order.Event}】");
@@ -320,7 +309,7 @@ namespace AutoTest.Logic
 
             _su.Dispose();
 
-            //model.OutPath = @"E:\GitHub\AutoTest\AutoTest\bin\Debug\20200722174729";
+            //model.OutPath = @"E:\GitHub\AutoTest\AutoTest\bin\Debug\20200724124612";
 
             // Excel 整理
             CreateExel(model, model.OutPath);
@@ -398,13 +387,21 @@ namespace AutoTest.Logic
 
                 LogUtility.WriteInfo($"【透视表】对账单明细报表 数据做成完了");
                 excel.SaveAs(file);
+                LogUtility.WriteInfo($"【透视表】对账单明细报表 文件保存完了");
             }
 
             model.Msg = "透视表数据刷新中...";
-            LogUtility.WriteInfo($"透视表数据刷新中...");
 
             //刷新透视表
-            ExcelHelper.RefreshPivotTable(path + @"\透视表.xlsx");
+            int cnt = 0;
+            do
+            {
+                Thread.Sleep(500);
+                LogUtility.WriteInfo($"透视表数据刷新中...");
+            } while (!ExcelHelper.RefreshPivotTable(path + @"\透视表.xlsx") && cnt++ < 5);
+            if (cnt >= 6)
+                throw new Exception("Err:透视表数据刷新失败");
+
             LogUtility.WriteInfo($"【透视表】透视表刷新完了");
 
             // 采购入库/采购退货 做成

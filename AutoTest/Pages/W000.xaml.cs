@@ -74,9 +74,9 @@ namespace AutoTest.Pages
             {
                 switch ((PageEnum)selected.Index)
                 {
-                    //case PageEnum.P001:
-                    //    _model.MainPage = new P001();
-                    //    break;
+                    case PageEnum.P001:
+                        _model.MainPage = new P001();
+                        break;
                     case PageEnum.P101:
                         _model.MainPage = new P101();
                         break;

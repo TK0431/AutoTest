@@ -134,5 +134,13 @@ namespace AutoTest.Pages
             range.Height = _model.SelectedHwndItem.HModel.Height;
             range.Topmost = true;
         }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
+            eventArg.RoutedEvent = UIElement.MouseWheelEvent;
+            eventArg.Source = sender;
+            scrollViewer.RaiseEvent(eventArg);
+        }
     }
 }

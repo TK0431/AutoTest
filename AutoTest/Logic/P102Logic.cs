@@ -417,10 +417,10 @@ namespace AutoTest.Logic
                 {
                     DoClick(model, caseCtrl, key);
                 }
-                else if (caseData[key].StartsWith("Copy:"))
-                {
-                    DoCopy(model, caseCtrl, key, caseData[key].Split(':')[1]);
-                }
+                //else if (caseData[key].StartsWith("Copy:"))
+                //{
+                //    DoCopy(model, caseCtrl, key, caseData[key].Split(':')[1]);
+                //}
                 else if (caseData[key] == "Clear")
                 {
                     DoInput(model, caseCtrl, key, "");
@@ -480,19 +480,19 @@ namespace AutoTest.Logic
             Thread.Sleep(100);
 
             // Pic
-            //IDataObject newObject = null;
+            IDataObject newObject = null;
             Bitmap newBitmap = null;
-            //newObject = Clipboard.GetDataObject();
-            //if (Clipboard.ContainsImage())
-            //{
-            newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
-            newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
-            LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
-            //}
-            //else
-            //{
-            //    LogUtility.WriteError($"EXE测试：截图失败[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}", null);
-            //}
+            newObject = Clipboard.GetDataObject();
+            if (Clipboard.ContainsImage())
+            {
+                newBitmap = (Bitmap)(Clipboard.GetImage().Clone());
+                newBitmap.Save(_currentTCCasePath + @"\" + model.PicNum.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png", ImageFormat.Png);
+                LogUtility.WriteInfo($"EXE测试：截图[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}");
+            }
+            else
+            {
+                LogUtility.WriteError($"EXE测试：截图失败[{_currentTCCasePath + @"\" + model.PicNum++.ToString().PadLeft(3, '0') + "_" + order.Sheet + "_" + order.Order + ".png"}", null);
+            }
 
             //Clipboard.Clear();
         }
@@ -544,30 +544,30 @@ namespace AutoTest.Logic
                 Thread.Sleep(100);
                 User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                 Thread.Sleep(100);
+                LogUtility.WriteInfo($"EXE测试：[{id}]Click点击");
             }
-            LogUtility.WriteInfo($"EXE测试：[{id}]Click点击{nums}次");
         }
 
-        private void DoCopy(P102ViewModel model, Dictionary<string, ControlInfo> caseCtrl, string key, string value)
-        {
-            //Clipboard.Clear();
+        //private void DoCopy(P102ViewModel model, Dictionary<string, ControlInfo> caseCtrl, string key, string value)
+        //{
+        //    //Clipboard.Clear();
 
-            Clipboard.SetDataObject(value);
+        //    Clipboard.SetDataObject(value);
 
-            User32Utility.SetCursorPos(_topHwndModel.DeskX + caseCtrl[key].X, _topHwndModel.DeskY + caseCtrl[key].Y);
-            Thread.Sleep(100);
+        //    User32Utility.SetCursorPos(_topHwndModel.DeskX + caseCtrl[key].X, _topHwndModel.DeskY + caseCtrl[key].Y);
+        //    Thread.Sleep(100);
 
-            User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            Thread.Sleep(100);
-            User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-            Thread.Sleep(100);
+        //    User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        //    Thread.Sleep(100);
+        //    User32Utility.mouse_event(User32Utility.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        //    Thread.Sleep(100);
 
-            SendKeys.SendWait("^{v}");
+        //    SendKeys.SendWait("^{v}");
 
-            //Clipboard.Clear();
+        //    //Clipboard.Clear();
 
-            LogUtility.WriteInfo($"EXE测试：[{key}]Copy{value}");
-        }
+        //    LogUtility.WriteInfo($"EXE测试：[{key}]Copy{value}");
+        //}
 
         /// <summary>
         /// 输入

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <setting>
-  <version value="Version:2020.0723.0"/>
-  <uname value="兪 文星"/>
+  <version value="Version : 2020.07.24.1"/>
+  <theme value="#FFFF3D00"/>
+  <isdark value="False"/>
   <G010_01>
     <data name="pid" value=""/>
   </G010_01>

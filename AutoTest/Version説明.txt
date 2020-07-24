@@ -39,3 +39,15 @@
     1.修复文件对比，都为空文件时显示红色
 
 ### end
+
+### version value="Version:2020.0724.0"
+
+    1.修复截图异常
+
+### end
+
+### version value="Version : 2020.07.24.1"
+
+    1.添加主题颜色
+
+### end

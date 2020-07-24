@@ -40,8 +40,8 @@
                         materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                         materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
                 </DockPanel>
-                <ScrollViewer materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
-                    <TreeView ItemsSource="{Binding HwndItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
+                <ScrollViewer materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                    <TreeView x:Name="scrollViewer" ItemsSource="{Binding HwndItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="{x:Type TreeViewItem}">
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded,Mode=TwoWay}"/>

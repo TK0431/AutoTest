@@ -1,80 +1,51 @@
 ﻿using AutoTest.Logic;
 using FrameWork.Models;
 using FrameWork.ViewModels.Base;
+using MaterialDesignColors;
+using MaterialDesignThemes.Wpf;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 using System.Windows.Input;
+using FrameWork.Utility;
 
 namespace AutoTest.ViewModels
 {
     /// <summary>
-    /// EXE解析
+    /// 设置
     /// </summary>
     public class P001ViewModel : BaseViewModel
     {
+        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
+
         /// <summary>
         /// Logic
         /// </summary>
         private P001Logic _logic = new P001Logic();
 
-        /// <summary>
-        /// 检索
-        /// </summary>
-        public string StrSearch { get; set; }
+        private Color? _selectedColor;
+        public Color? SelectedColor { set {
+                if (_selectedColor != value)
+                {
+                    _selectedColor = value;
+                    OnPropertyChanged("SelectedColor");
 
-        /// <summary>
-        /// 检索按钮
-        /// </summary>
-        public ICommand BtnSearch { get; set; }
+                    if (value is Color color)
+                    {
+                        ChangeCustomColor(color);
+                    }
+                }
+            } get => _selectedColor; }
 
-        /// <summary>
-        /// 是否全体搜索
-        /// </summary>
-        public bool IsAllFind { get; set; }
+        public bool FlgDark { get; set; }
 
-        /// <summary>
-        /// 句柄
-        /// </summary>
-        public ObservableCollection<HwndModel> HwndItems { get; set; }
+        public IEnumerable<ISwatch> Swatches { get; } = SwatchHelper.Swatches;
 
-        /// <summary>
-        /// 句柄
-        /// </summary>
-        public string Hwnd { get; set; }
+        public ICommand ChangeHueCommand { get; }
 
-        /// <summary>
-        /// 值
-        /// </summary>
-        public string Value { get; set; }
+        public ICommand ToggleBaseCommand { get; }
 
-        /// <summary>
-        /// 类
-        /// </summary>
-        public string Class { get; set; }
-
-        /// <summary>
-        /// 坐标X
-        /// </summary>
-        public int PointX { get; set; }
-
-        /// <summary>
-        /// 坐标Y
-        /// </summary>
-        public int PointY { get; set; }
-
-        /// <summary>
-        /// 宽度
-        /// </summary>
-        public int Width { get; set; }
-
-        /// <summary>
-        /// 高度
-        /// </summary>
-        public int Height { get; set; }
-
-        /// <summary>
-        /// 文件出力按钮
-        /// </summary>
-        public ICommand BtnFileOut { get; set; }
+        public ICommand BtnSaveTheme { get; }
 
         /// <summary>
         /// 初始化
@@ -84,10 +55,43 @@ namespace AutoTest.ViewModels
             // 初始化
             this._logic.Init(this);
 
-            // 检索按钮
-            this.BtnSearch = new RelayTCommand<P001ViewModel>(_logic.BtnSearch);
-            // 文件出力按钮
-            this.BtnSearch = new RelayTCommand<P001ViewModel>(_logic.BtnFileOut);
+            ChangeHueCommand = new RelayTCommand<Color>(ChangeHue);
+            ToggleBaseCommand = new RelayTCommand<P001ViewModel>(_logic.ApplyBase);
+            BtnSaveTheme = new RelayTCommand<P001ViewModel>(_logic.SaveTheme);
+        }
+
+        private void ChangeHue(Color obj)
+        {
+            //var hue = (Color)obj;
+
+            //ITheme theme = _paletteHelper.GetTheme();
+            //Color? _primaryColor = (Color?)theme.PrimaryMid.Color;
+            //SelectedColor = _primaryColor;
+
+            SelectedColor = obj;
+            _paletteHelper.ChangePrimaryColor(obj);
+            //_primaryColor = hue;
+        }
+
+        private void ChangeCustomColor(object obj)
+        {
+            var color = (Color)obj;
+
+
+                _paletteHelper.ChangePrimaryColor(color);
+                //_primaryColor = color;
+
+
+                //_paletteHelper.ChangeSecondaryColor(color);
+                //_secondaryColor = color;
+
+
+                //SetPrimaryForegroundToSingleColor(color);
+                //_primaryForegroundColor = color;
+
+                //SetSecondaryForegroundToSingleColor(color);
+                //_secondaryForegroundColor = color;
+
         }
     }
 }
