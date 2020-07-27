@@ -261,11 +261,13 @@ namespace AutoTest.Logic
             if (continuEvent == null)
             {
                 _su = new SeleniumUtility();
-                // 输出路径
-                model.OutPath = Environment.CurrentDirectory + @"\" + _su.SuTime;
 
                 _su.AddArg("$arg(1)", arg1);
                 _su.AddArg("$arg(2)", arg2);
+
+                // 输出路径
+                _su.SuTime = arg2.Replace("-", "") + "_" + _su.SuTime;
+                model.OutPath = Environment.CurrentDirectory + @"\" + _su.SuTime;
             }
             else
             {

@@ -75,7 +75,7 @@
                             <!-- Title -->
                             <DockPanel>
                                 <TextBlock DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Version}"/>
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" Text="自动脚本工具"/>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" Text="BiBot"/>
                             </DockPanel>
                         </DockPanel>
                     </materialDesign:ColorZone>
