@@ -1383,6 +1383,8 @@ namespace AutoTest.Logic
             _results.Add(record);
 
             LogUtility.WriteInfo($"EXE测试：DBCompare:[{filOld}-{filNew}]完了");
+
+            GC.Collect();
         }
 
         private void SetResultSheet(P102ViewModel model, ExcelWorksheet sh)

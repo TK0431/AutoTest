@@ -56,9 +56,9 @@ namespace AutoTest.Pages
         /// <param name="e"></param>
         private void Search_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox tb = sender as TextBox;
-            List<EnumItem> list = typeof(PageEnum).GetList();
-            _model.MenuItems = new ObservableCollection<EnumItem>(list.Where(x => x.Description.Contains(tb.Text)));
+            //TextBox tb = sender as TextBox;
+            //List<EnumItem> list = typeof(PageEnum).GetList();
+            //_model.MenuItems = new ObservableCollection<EnumItem>(list.Where(x => x.Description.Contains(tb.Text)));
         }
 
         /// <summary>

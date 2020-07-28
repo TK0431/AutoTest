@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <setting>
-  <version value="Version : 2020.07.24.1"/>
-  <theme value="#FFFF3D00"/>
+  <version value="Version : 2020.07.27.0"/>
+  <theme value="#FF004D40"/>
   <isdark value="False"/>
   <G010_01>
     <data name="pid" value=""/>
