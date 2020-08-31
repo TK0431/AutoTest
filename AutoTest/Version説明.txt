@@ -57,3 +57,17 @@
     1.添加主题颜色
 
 ### end
+
+### version value="Version : 2020.07.28.0"
+
+    1.解决DB出现非文字列
+
+### end
+
+### version value="Version : 2020.08.07.0"
+
+    1.添加Backspace和Delete按键
+    2.添加Enter,Up,Down,Left,Right,PgUp,PgDown,Backspace,Delete后添加：多次点击
+    3.异常，手动停止：工具置顶
+
+### end

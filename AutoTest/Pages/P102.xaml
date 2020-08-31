@@ -13,6 +13,7 @@
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
       Loaded="Page_Loaded"
+      Unloaded="Page_Unloaded"
       d:DesignHeight="430" d:DesignWidth="600">
     <DockPanel>
         <DockPanel DockPanel.Dock="Top">
@@ -143,7 +144,8 @@
                 <TextBlock Grid.Row="3" Grid.Column="1" Text="Tab控件选择：Tab:1"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="模拟键盘输入：Key:XXX"/>
                 <TextBlock Grid.Row="4" Grid.Column="1" Text="多次左击：Click:3"/>
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="特殊按键：Enter,Up,Down,Left,Right,PgUp,PgDown"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="特殊按键：Enter,Up,Down,Left,Right,PgUp,PgDown,Backspace,Delete"/>
+                <TextBlock Grid.Row="5" Grid.Column="1" Text="多次特殊按键：XXX:3"/>
             </Grid>
         </GroupBox>
     </DockPanel>

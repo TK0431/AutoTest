@@ -35,6 +35,11 @@ namespace AutoTest.Pages
             k_hook.Start();
         }
 
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (k_hook != null) k_hook.Stop();
+        }
+
         /// <summary>
         /// 截图
         /// </summary>

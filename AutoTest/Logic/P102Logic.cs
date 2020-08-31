@@ -437,7 +437,16 @@ namespace AutoTest.Logic
                 {
                     DoInputKeys(model, caseCtrl, key, caseData[key].Split(':')[1]);
                 }
-                else if (caseData[key] == "Enter" || caseData[key] == "Up" || caseData[key] == "Down" || caseData[key] == "Left" || caseData[key] == "Right" || caseData[key] == "PgUp" || caseData[key] == "PgDown")
+                else if (caseData[key].StartsWith("Enter:") || caseData[key].StartsWith("Up:") || caseData[key].StartsWith("Down:") || caseData[key].StartsWith("Left:") || caseData[key].StartsWith("Right:") || caseData[key].StartsWith("PgUp:") || caseData[key].StartsWith("PgDown:") || caseData[key].StartsWith("Backspace:") || caseData[key].StartsWith("Delete:"))
+                {
+                    int cnt;
+                    if (int.TryParse(caseData[key].Split(':')[1], out cnt))
+                    {
+                        for (int i = 0; i < cnt; i++)
+                            DoInputKey(model, caseData[key].Split(':')[0]);
+                    }
+                }
+                else if (caseData[key] == "Enter" || caseData[key] == "Up" || caseData[key] == "Down" || caseData[key] == "Left" || caseData[key] == "Right" || caseData[key] == "PgUp" || caseData[key] == "PgDown" || caseData[key] == "Backspace" || caseData[key] == "Delete")
                 {
                     DoInputKey(model, caseData[key]);
                 }
@@ -679,8 +688,14 @@ namespace AutoTest.Logic
                 case "PgDown":
                     SendKeys.SendWait("{PGDN}");
                     break;
+                case "Backspace":
+                    SendKeys.SendWait("{BACKSPACE}");
+                    break;
+                case "Delete":
+                    SendKeys.SendWait("{DELETE}");
+                    break;
             }
-            Thread.Sleep(100);
+            Thread.Sleep(model.KeySleep);
 
             LogUtility.WriteInfo($"EXE测试：DoInputKey[{value}]");
         }
@@ -1243,7 +1258,7 @@ namespace AutoTest.Logic
                 int cntOld = sh.LoadDataText(model.ComparePath + @"\" + SOLD + @"\File\" + filOld, row++, 1);
                 if (cntOld == 0)
                 {
-                    sh.Cells[row - 1, 1].Value ="空ファイル";
+                    sh.Cells[row - 1, 1].Value = "空ファイル";
                     sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 }
                 row = sh.GetMaxRow(1) + 2;
@@ -1258,7 +1273,7 @@ namespace AutoTest.Logic
                     sh.Cells[row - 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 }
 
-                if(cntOld == 0 && cntNew != 0)
+                if (cntOld == 0 && cntNew != 0)
                     sh.Cells[cntOld, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
                 if (cntOld != 0 && cntNew == 0)
                     sh.Cells[cntNew, 1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);

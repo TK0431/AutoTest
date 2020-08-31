@@ -92,6 +92,9 @@ namespace AutoTest.Pages
                     case PageEnum.P202:
                         _model.MainPage = new P202();
                         break;
+                    case PageEnum.P203:
+                        _model.MainPage = new P203();
+                        break;
                     default:
                         break;
                 }

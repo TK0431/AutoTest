@@ -3,12 +3,61 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:pass="clr-namespace:FrameWork.Utility;assembly=FrameWork"
       xmlns:local="clr-namespace:AutoTest.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="P202">
+      mc:Ignorable="d"
+      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.FontWeight="Regular"
+      TextElement.FontSize="13"
+      TextOptions.TextFormattingMode="Ideal"
+      TextOptions.TextRenderingMode="Auto"
+      Background="{DynamicResource MaterialDesignPaper}"
+      d:DesignHeight="430" d:DesignWidth="600"
+      Unloaded="Page_Unloaded">
+    <GroupBox Header="Google" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="8">
+        <GroupBox.HeaderTemplate>
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="LeafMaple" Height="32" Width="32" VerticalAlignment="Center" />
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{Binding}" />
+                </StackPanel>
+            </DataTemplate>
+        </GroupBox.HeaderTemplate>
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" IsEnabled="{Binding FlgFile}">
+                <Button Content="读取" Command="{Binding BtnReadFile}" CommandParameter="{Binding Path=.}" DockPanel.Dock="Right" Margin="8"/>
+                <ComboBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                      materialDesign:TextFieldAssist.SuffixText="选择"
+                      materialDesign:ColorZoneAssist.Mode="Inverted"
+                      materialDesign:HintAssist.Hint="脚本文件"
+                      DisplayMemberPath="Name" Margin="8"/>
+            </DockPanel>
 
-    <Grid>
-        
-    </Grid>
+            <Grid DockPanel.Dock="Top" IsEnabled="{Binding FlgStart}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Content="执行" Command="{Binding BtnStart}" CommandParameter="{Binding Path=.}" Grid.Column="0" Margin="8"/>
+                <Button Content="输出" Command="{Binding OutStart}" CommandParameter="{Binding Path=.}" Grid.Column="1" Margin="8"/>
+            </Grid>
+
+            <Grid Visibility="{Binding FlgDoing}">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" Margin="8" Grid.RowSpan="2"/>
+                <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" TextAlignment="Left" Text="{Binding Msg}" Margin="8"/>
+                <Button Content="强制停止" Command="{Binding BtnStop}" CommandParameter="{Binding Path=.}" Grid.Row="1" Grid.Column="1" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" TextAlignment="Left" Text="※仅Web模拟期间可强制停止" Margin="8"/>
+            </Grid>
+        </DockPanel>
+    </GroupBox>
 </Page>

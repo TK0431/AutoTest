@@ -1,17 +1,11 @@
 ﻿using AutoTest.Pages;
 using FrameWork.Consts;
-using FrameWork.Models;
 using FrameWork.Utility;
 using MaterialDesignThemes.Wpf;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace AutoTest
@@ -86,10 +80,12 @@ namespace AutoTest
             }
             else
             {
-                ShowMessage($"程序异常,嘻嘻", "OK", EnumMessageType.Error, e.Exception);
+                ShowMessage($"程序异常", "OK", EnumMessageType.Error, e.Exception);
             }
 
             e.Handled = true;
+
+            Win_top();
         }
 
         /// <summary>
@@ -111,6 +107,13 @@ namespace AutoTest
             {
                 ShowMessage($"程序异常", "OK", EnumMessageType.Error, ex);
             }
+            Win_top();
+        }
+
+        public static void Win_top()
+        {
+            IntPtr hwnd = new WindowInteropHelper(Application.Current.MainWindow).Handle;
+            User32Utility.SetForegroundWindow(hwnd);
         }
     }
 }

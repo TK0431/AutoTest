@@ -96,6 +96,7 @@
     <Reference Include="NPOI.OpenXmlFormats, Version=2.5.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
       <HintPath>..\packages\NPOI.2.5.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
+    <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099" />
     <Reference Include="PropertyChanged, Version=3.2.8.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\packages\PropertyChanged.Fody.3.2.8\lib\net40\PropertyChanged.dll</HintPath>
     </Reference>
@@ -118,6 +119,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WebDriver, Version=3.141.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.3.141.0\lib\net45\WebDriver.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -131,6 +135,8 @@
     <Compile Include="Logic\P102Logic.cs" />
     <Compile Include="Logic\P101Logic.cs" />
     <Compile Include="Logic\P001Logic.cs" />
+    <Compile Include="Logic\P203Logic.cs" />
+    <Compile Include="Logic\P202Logic.cs" />
     <Compile Include="Logic\P201Logic.cs" />
     <Compile Include="Pages\P101.xaml.cs">
       <DependentUpon>P101.xaml</DependentUpon>
@@ -147,12 +153,17 @@
     <Compile Include="Pages\P201.xaml.cs">
       <DependentUpon>P201.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\P203.xaml.cs">
+      <DependentUpon>P203.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\P202.xaml.cs">
       <DependentUpon>P202.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\W001.xaml.cs">
       <DependentUpon>W001.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\P203ViewModel.cs" />
+    <Compile Include="ViewModels\P202ViewModel.cs" />
     <Compile Include="ViewModels\P201ViewModel.cs" />
     <Compile Include="ViewModels\P102ViewModel.cs" />
     <Compile Include="ViewModels\P101ViewModel.cs" />
@@ -182,6 +193,10 @@
     <Page Include="Pages\P201.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\P203.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\P202.xaml">
       <SubType>Designer</SubType>
@@ -220,6 +235,12 @@
     <None Include="ExcelScript\DB\tb_userInfo_4.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ExcelScript\hd.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExcelScript\ARG1_ARG2_エビデンス.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ExcelScript\In.xls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -237,6 +258,9 @@
     </None>
     <None Include="ExcelScript\SeleniumTemp.xlsx" />
     <None Include="ExcelScript\UT_Test01.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExcelScript\WebAuto.xlsm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

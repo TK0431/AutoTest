@@ -26,7 +26,9 @@ namespace AutoTest.Consts
         P103,
         [Description("猫超")]
         P201,
-        [Description("WEB结果")]
+        [Description("WEB测试")]
         P202,
+        [Description("WEB截图辅助")]
+        P203,
     }
 }
