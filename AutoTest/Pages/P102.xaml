@@ -25,14 +25,19 @@
                       DisplayMemberPath="Name" Margin="8"/>
         </DockPanel>
         <DockPanel DockPanel.Dock="Top">
-            <CheckBox IsChecked="{Binding FlgNewDir}" Content="新文件夹"/>
             <Grid DockPanel.Dock="Left" Margin="8 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <RadioButton Content="旧代码" Grid.Row="0" IsChecked="{Binding FlgCodeOld}"/>
-                <RadioButton Content="新代码" Grid.Row="1"/>
+                <CheckBox IsChecked="{Binding FlgNewDir}" Grid.Row="0" Grid.Column="0" Content="新文件夹"/>
+                <CheckBox IsChecked="{Binding FlgPrtScn}" Grid.Row="1" Grid.Column="0" Content="桌面截屏(PrtScn)"/>
+                <RadioButton Content="旧代码" Grid.Row="0" Grid.Column="1" IsChecked="{Binding FlgCodeOld}"/>
+                <RadioButton Content="新代码" Grid.Row="1" Grid.Column="1"/>
             </Grid>
             <TextBox Margin="8" Text="{Binding CbxRowHeight}" DockPanel.Dock="Right"
                  materialDesign:HintAssist.Hint="Cbx行高" Width="80"

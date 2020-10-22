@@ -32,6 +32,8 @@ namespace AutoTest.ViewModels
 
         public bool FlgNewDir { get; set; } = true;
 
+        public bool FlgPrtScn { get; set; } = false;
+
         /// <summary>
         /// 
         /// </summary>
